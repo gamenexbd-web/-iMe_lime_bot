@@ -83,14 +83,12 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // 🛑 1. TELEGRAM ONLY CHECK
     if (!tg.initData || !tg.initDataUnsafe.user) {
         document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; text-align:center; padding:20px; font-weight:800;'>🛑 ACCESS DENIED!<br><br>You must open this app through the official Telegram Bot.</div>";
         throw new Error("Invalid User Agent");
     }
 
     let uid = tg.initDataUnsafe.user.id.toString();
-    // 🔒 Hardware Binding
     let cbDeviceId = localStorage.getItem('cb_hw_token') || 'cb-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
     localStorage.setItem('cb_hw_token', cbDeviceId);
 
@@ -122,7 +120,6 @@
     }
 
     async function init() {
-        // 🔒 2. HARD MULTI-ACCOUNT CHECK
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
         let isOwner = true;
         devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
@@ -163,7 +160,7 @@
 
     function sync() {
         if(userData && settings) {
-            document.getElementById('uLimits').innerText = `T1: ${userData.adCount1||0}/${settings.limit1||0}`;
+            document.getElementById('uLimits').innerText = `T1: ${userData.adCount1||0}/${settings.limit1||0} | T2: ${userData.adCount2||0}/${settings.limit2||0}`;
             document.getElementById('uBalance').innerText = (userData.balance || 0).toFixed(2);
             document.getElementById('topBdt').innerText = (userData.balance || 0).toFixed(2);
             document.getElementById('uName').innerText = userData.name;
