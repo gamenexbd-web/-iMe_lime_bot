@@ -56,9 +56,12 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <!-- Pages -->
+    <!-- অরিজিনাল উইথড্র পেজ -->
     <div id="withdrawPage" class="page-overlay"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
-    <div id="historyPage" class="page-overlay"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div id="historyList"></div></div>
+    
+    <!-- অরিজিনাল ভিউ হিস্টরি পেজ -->
+    <div id="historyPage" class="page-overlay"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal History</div><div id="historyList"></div></div>
+    
     <div id="topPage" class="page-overlay"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div id="topList"></div></div>
     <div id="profilePage" class="page-overlay"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> My Stats</div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white; box-shadow:0 10px 20px rgba(0,0,0,0.05);"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1 Limit: <span id="st1" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2 Limit: <span id="st2" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Total Refers: <span id="sRef" style="color:#FF005C">0</span></p></div></div>
     <div id="invitePage" class="page-overlay"><div class="back-btn" onclick="closePage('invitePage')"><i class="fa-solid fa-arrow-left"></i> Invite</div><div style="background:white; padding:30px; border-radius:30px; text-align:center;"><h3 style="font-weight:800; color:#333;">Refer & Earn ৳<span id="refAmt">0</span></h3><input type="text" id="refLink" readonly style="width:100%; background:#f0f0f0; border:1px dashed #FF005C; padding:12px; border-radius:12px; margin-top:20px; font-size:11px; text-align:center;"><button onclick="copyRef()" style="width:100%; background:#FF005C; color:white; border:none; padding:15px; border-radius:15px; margin-top:15px; font-weight:800;">Copy Link</button></div></div>
@@ -120,7 +123,6 @@
     }
 
     async function init() {
-        // App Name Update
         db.collection("settings").doc("general").onSnapshot(doc => {
             if(doc.exists) {
                 const name = doc.data().appName || "Bikash Pay";
@@ -129,7 +131,6 @@
             }
         });
 
-        // Device Check
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
         let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
         if(!isOwner) {
@@ -181,6 +182,7 @@
         }
     }
 
+    // ⚡ অরিজিনাল উইথড্র লজিক (Fixed)
     function submitWithdraw() {
         const amt = parseFloat(document.getElementById('payAmt').value);
         const acc = document.getElementById('payAcc').value;
@@ -190,16 +192,25 @@
         if(userData.balance < amt) return alert("Insufficient balance!");
 
         db.collection("withdrawals").add({
-            uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now()
+            uid: uid,
+            name: userData.name,
+            amount: amt,
+            method: met,
+            account: acc,
+            status: "Pending",
+            timestamp: Date.now()
         }).then(() => {
             db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            alert("Withdraw Success! ✅"); closePage('withdrawPage');
+            alert("Withdraw Success! ✅");
+            closePage('withdrawPage');
         });
     }
 
+    // ⚡ অরিজিনাল ভিউ হিস্টরি লজিক
     function loadHistory() {
         db.collection("withdrawals").where("uid","==",uid).onSnapshot(snap => {
-            let h = ""; let list = []; snap.forEach(doc => list.push(doc.data()));
+            let h = ""; let list = [];
+            snap.forEach(doc => list.push(doc.data()));
             list.sort((a,b) => b.timestamp - a.timestamp);
             list.forEach(d => {
                 const c = d.status === "Approved" ? "#10b981" : d.status === "Rejected" ? "#ef4444" : "#f59e0b";
@@ -212,7 +223,6 @@
     function loadTop() {
         db.collection("users").orderBy("balance", "desc").limit(10).onSnapshot(snap => {
             let real = []; snap.forEach(doc => real.push(doc.data()));
-            // ⚡ রিয়েল এবং ফেক ইউজার কম্বাইন করে ব্যালেন্স অনুযায়ী সর্ট করা
             const all = [...real, ...fakeUsers].sort((a,b) => b.balance - a.balance);
             let h = "";
             all.forEach((u, i) => {
