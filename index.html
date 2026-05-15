@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -56,10 +56,8 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <!-- অরিজিনাল উইথড্র পেজ -->
     <div id="withdrawPage" class="page-overlay"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     
-    <!-- অরিজিনাল ভিউ হিস্টরি পেজ -->
     <div id="historyPage" class="page-overlay"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal History</div><div id="historyList"></div></div>
     
     <div id="topPage" class="page-overlay"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div id="topList"></div></div>
@@ -97,7 +95,6 @@
 
     let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {};
 
-    // ⚡ অরিজিনাল ফেক ইউজার লিস্ট
     const fakeUsers = [
         {name: "Mohammad Rakib", balance: 145.20, referCount: 52, photo: "https://randomuser.me/api/portraits/men/32.jpg"},
         {name: "Sriti Hasan", balance: 128.00, referCount: 38, photo: "https://randomuser.me/api/portraits/women/44.jpg"},
@@ -182,7 +179,6 @@
         }
     }
 
-    // ⚡ অরিজিনাল উইথড্র লজিক (Fixed)
     function submitWithdraw() {
         const amt = parseFloat(document.getElementById('payAmt').value);
         const acc = document.getElementById('payAcc').value;
@@ -192,13 +188,7 @@
         if(userData.balance < amt) return alert("Insufficient balance!");
 
         db.collection("withdrawals").add({
-            uid: uid,
-            name: userData.name,
-            amount: amt,
-            method: met,
-            account: acc,
-            status: "Pending",
-            timestamp: Date.now()
+            uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now()
         }).then(() => {
             db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             alert("Withdraw Success! ✅");
@@ -206,7 +196,6 @@
         });
     }
 
-    // ⚡ অরিজিনাল ভিউ হিস্টরি লজিক
     function loadHistory() {
         db.collection("withdrawals").where("uid","==",uid).onSnapshot(snap => {
             let h = ""; let list = [];
@@ -250,13 +239,33 @@
         s.onload = () => { if(window['show_'+zone]) window['show_'+zone]().then(() => startTimer(t, c)).catch(() => alert("Ad Blocked!")); };
     }
 
+    // ⚡ সমাধানকৃত টাইমার ফাংশন (১৮+২ সেকেন্ড)
     function startTimer(t, c) {
-        isWaiting = true; const countBox = document.getElementById('countdownBox'); countBox.style.display = 'block';
-        let total = 20; const timer = setInterval(() => {
-            if (total > 2) countBox.innerText = c ? `👉 Click Ad & Wait ${total-2}s` : `⏳ Ad Running... Reward in ${total-2}s`;
-            else if (total <= 2 && total > 0) { if(total === 2) updateDB(t, c); countBox.innerText = `✅ Success! Reward Added.`; }
-            else { clearInterval(timer); countBox.style.display = 'none'; isWaiting = false; }
-            total--;
+        isWaiting = true;
+        const countBox = document.getElementById('countdownBox');
+        countBox.style.display = 'block';
+        countBox.style.color = "#FF005C";
+
+        let waitTime = 18; 
+        let successBuffer = 2;
+
+        const timer = setInterval(() => {
+            if (waitTime > 0) {
+                countBox.innerText = c ? `👉 Click Ad & Wait ${waitTime}s` : `⏳ Ad Running... Reward in ${waitTime}s`;
+                waitTime--;
+            } else if (successBuffer > 0) {
+                if (successBuffer === 2) {
+                    updateDB(t, c); // ১৮ সেকেন্ড পর ডাটাবেসে টাকা যোগ হবে
+                    countBox.innerText = `✅ Success! Reward Added.`;
+                    countBox.style.color = "#10b981";
+                }
+                successBuffer--;
+            } else {
+                // মোট ২০ সেকেন্ড পর বাটন আনলক হবে
+                clearInterval(timer);
+                countBox.style.display = 'none';
+                isWaiting = false;
+            }
         }, 1000);
     }
 
