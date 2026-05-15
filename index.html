@@ -26,9 +26,6 @@
         .task-option { background: white; padding: 22px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px; }
         .play-tag { font-weight: 800; color: white; background: #FF005C; padding: 6px 18px; border-radius: 50px; font-size: 12px; }
         .top-user-card { background: white; padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; border: 1px solid #fff; }
-        .rank-box { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; background: #f0f0f0; }
-        .rank-1 { background: #FFD700; color: #fff; box-shadow: 0 0 10px rgba(255,215,0,0.4); }
-        .user-thumb { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #FF005C; object-fit: cover; }
         input, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; font-weight: 600; }
         .btn-main { background: #FF005C; color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: 800; cursor: pointer; }
         .history-card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #FF005C; }
@@ -41,7 +38,7 @@
 <body>
 
 <div id="loadingScreen">🛡️ Initializing Security...</div>
-<div id="blockScreen"><h1 id="blockTitle">ACCESS DENIED</h1><p id="vpnNoticeText" style="font-weight: 600; margin-top: 15px;"></p></div>
+<div id="blockScreen"><h1 id="blockTitle">ACCESS DENIED</h1><p id="vpnNoticeText" style="margin-top:15px; font-weight:600;"></p></div>
 
 <div class="app-container" id="mainApp">
     <header><div id="appNameHeader" style="font-weight: 800; color: #FF005C; font-size: 20px;">Bikash Pay</div><div class="bdt-badge">৳ <span id="topBdt">0.00</span></div></header>
@@ -56,12 +53,22 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <!-- Pages -->
+    <!-- Withdraw Page -->
     <div id="withdrawPage" class="page-overlay"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
-    <div id="historyPage" class="page-overlay"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal History</div><div id="historyList"></div></div>
+    
+    <!-- History Page -->
+    <div id="historyPage" class="page-overlay"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div id="historyList"></div></div>
+    
+    <!-- Top Users -->
     <div id="topPage" class="page-overlay"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div id="topList"></div></div>
+    
+    <!-- Profile Stats -->
     <div id="profilePage" class="page-overlay"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> My Stats</div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white; box-shadow:0 10px 20px rgba(0,0,0,0.05);"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1 Limit: <span id="st1" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2 Limit: <span id="st2" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Total Refers: <span id="sRef" style="color:#FF005C">0</span></p></div></div>
+    
+    <!-- Invite -->
     <div id="invitePage" class="page-overlay"><div class="back-btn" onclick="closePage('invitePage')"><i class="fa-solid fa-arrow-left"></i> Invite</div><div style="background:white; padding:30px; border-radius:30px; text-align:center;"><h3 style="font-weight:800; color:#333;">Refer & Earn ৳<span id="refAmt">0</span></h3><input type="text" id="refLink" readonly style="width:100%; background:#f0f0f0; border:1px dashed #FF005C; padding:12px; border-radius:12px; margin-top:20px; font-size:11px; text-align:center;"><button onclick="copyRef()" style="width:100%; background:#FF005C; color:white; border:none; padding:15px; border-radius:15px; margin-top:15px; font-weight:800;">Copy Link</button></div></div>
+    
+    <!-- Task -->
     <div id="taskPage" class="page-overlay"><div class="back-btn" onclick="closePage('taskPage')"><i class="fa-solid fa-arrow-left"></i> Start Task</div><div class="task-option" id="btnT1" onclick="handleAdClick('1')"><span style="font-weight:800">Task One</span><span class="play-tag">Play</span></div><div class="task-option" id="btnT2" onclick="handleAdClick('2')"><span style="font-weight:800">Task Two</span><span class="play-tag">Play</span></div><div id="countdownBox" style="display:none;"></div></div>
 </div>
 
@@ -84,8 +91,8 @@
     tg.expand();
 
     if (!tg.initData || !tg.initDataUnsafe.user) {
-        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;'>🛑 OPEN VIA TELEGRAM BOT</div>";
-        throw new Error("Invalid User Agent");
+        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;'>🛑 OPEN VIA TELEGRAM</div>";
+        throw new Error("Unauthorized");
     }
 
     let uid = tg.initDataUnsafe.user.id.toString();
@@ -111,7 +118,7 @@
     }
 
     async function init() {
-        // App Config (Lightning Real-time)
+        // App Name Update
         db.collection("settings").doc("general").onSnapshot(doc => {
             if(doc.exists) {
                 const name = doc.data().appName || "Bikash Pay";
@@ -120,17 +127,20 @@
             }
         });
 
-        // Hard Multi-account Block
+        // Device Check
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
         let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
         if(!isOwner) {
             document.getElementById('loadingScreen').style.display='none'; document.getElementById('blockScreen').style.display='flex';
-            document.getElementById('blockTitle').innerText = "DEVICE LOCKED!";
-            document.getElementById('vpnNoticeText').innerText = "One account per device allowed."; return;
+            document.getElementById('blockTitle').innerText = "DEVICE LOCKED!"; return;
         }
 
         db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data(); sync(); });
-        db.collection("settings").doc("referral").onSnapshot(doc => { refSet = doc.data() || {}; document.getElementById('refAmt').innerText = refSet.bonus || 0; document.getElementById('refLink').value = `https://t.me/${refSet.botUser}?start=${uid}`; });
+        db.collection("settings").doc("referral").onSnapshot(doc => { 
+            refSet = doc.data() || {}; 
+            document.getElementById('refAmt').innerText = refSet.bonus || 0; 
+            document.getElementById('refLink').value = `https://t.me/${refSet.botUser}?start=${uid}`; 
+        });
         db.collection("settings").doc("withdraw").onSnapshot(doc => { if(doc.exists) { wSet = doc.data(); document.getElementById('minWText').innerText = wSet.min || 0; } });
         db.collection("settings").doc("support").onSnapshot(doc => { if(doc.exists) document.getElementById('supBtn').onclick = () => window.open(doc.data().link); });
         
@@ -169,7 +179,6 @@
         }
     }
 
-    // ⚡ অরিজিনাল উইথড্র লজিক (Fixed)
     function submitWithdraw() {
         const amt = parseFloat(document.getElementById('payAmt').value);
         const acc = document.getElementById('payAcc').value;
@@ -179,25 +188,16 @@
         if(userData.balance < amt) return alert("Insufficient balance!");
 
         db.collection("withdrawals").add({
-            uid: uid,
-            name: userData.name,
-            amount: amt,
-            method: met,
-            account: acc,
-            status: "Pending",
-            timestamp: Date.now()
+            uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now()
         }).then(() => {
             db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            alert("Withdraw Success! ✅");
-            closePage('withdrawPage');
+            alert("Withdraw Success! ✅"); closePage('withdrawPage');
         });
     }
 
-    // ⚡ ভিউ হিস্টরি লজিক (বিদ্যুতের গতিতে)
     function loadHistory() {
         db.collection("withdrawals").where("uid","==",uid).onSnapshot(snap => {
-            let h = ""; let list = [];
-            snap.forEach(doc => list.push(doc.data()));
+            let h = ""; let list = []; snap.forEach(doc => list.push(doc.data()));
             list.sort((a,b) => b.timestamp - a.timestamp);
             list.forEach(d => {
                 const c = d.status === "Approved" ? "#10b981" : d.status === "Rejected" ? "#ef4444" : "#f59e0b";
@@ -245,8 +245,8 @@
     function loadTop() {
         db.collection("users").orderBy("balance", "desc").limit(10).onSnapshot(snap => {
             let h = ""; snap.forEach((doc, i) => {
-                const u = doc.data(); let rk = i+1; let rc = rk===1 ? 'rank-1' : '';
-                h += `<div class="top-user-card"><div class="rank-box ${rc}">${rk}</div><img src="${u.photo}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.referCount||0} Refers</p></div><div style="font-weight:800; color:#FF005C">৳ ${u.balance.toFixed(2)}</div></div>`;
+                const u = doc.data(); let rk = i+1;
+                h += `<div class="top-user-card"><div class="rank-box">${rk}</div><img src="${u.photo}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.balance.toFixed(2)} BDT</p></div></div>`;
             });
             document.getElementById('topList').innerHTML = h;
         });
