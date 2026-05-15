@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="pageTitle">Loading...</title>
+    <title id="pageTitle">Bikash Pay</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -25,13 +25,17 @@
         .back-btn { font-size: 18px; font-weight: 800; color: #333; cursor: pointer; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
         .task-option { background: white; padding: 22px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px; }
         .play-tag { font-weight: 800; color: white; background: #FF005C; padding: 6px 18px; border-radius: 50px; font-size: 12px; }
+        .top-user-card { background: white; padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; border: 1px solid #fff; }
+        .rank-box { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; background: #f0f0f0; }
+        .rank-1 { background: #FFD700; color: #fff; box-shadow: 0 0 10px rgba(255,215,0,0.4); }
+        .user-thumb { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #FF005C; object-fit: cover; }
         input, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; font-weight: 600; }
         .btn-main { background: #FF005C; color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: 800; cursor: pointer; }
+        .history-card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #FF005C; }
+        .status-badge { font-size: 10px; padding: 4px 10px; border-radius: 50px; font-weight: 800; color: white; }
         #blockScreen { position: fixed; inset: 0; background: #FF005C; color: white; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; }
         #loadingScreen { position: fixed; inset: 0; background: #FFECF2; z-index: 8888; display: flex; justify-content: center; align-items: center; font-weight: 800; color: #FF005C; }
         #countdownBox { font-size: 13px; color: #FF005C; font-weight: 800; text-align: center; margin-top: 15px; padding: 15px; background: white; border-radius: 15px; }
-        .history-card { background: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #FF005C; }
-        .status-badge { font-size: 10px; padding: 4px 10px; border-radius: 50px; font-weight: 800; color: white; }
     </style>
 </head>
 <body>
@@ -52,7 +56,7 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <!-- All Pages remain as they were -->
+    <!-- Pages Section -->
     <div id="withdrawPage" class="page-overlay"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     <div id="historyPage" class="page-overlay"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div id="historyList"></div></div>
     <div id="topPage" class="page-overlay"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div id="topList"></div></div>
@@ -81,7 +85,7 @@
 
     if (!tg.initData || !tg.initDataUnsafe.user) {
         document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; text-align:center; padding:20px; font-weight:800;'>🛑 ACCESS DENIED!</div>";
-        throw new Error("Invalid User Agent");
+        throw new Error("Invalid Auth");
     }
 
     let uid = tg.initDataUnsafe.user.id.toString();
@@ -89,6 +93,12 @@
     localStorage.setItem('cb_hw_token', cbDeviceId);
 
     let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {};
+
+    const fakeUsers = [
+        {name: "Mohammad Rakib", balance: 145.20, referCount: 52, photo: "https://randomuser.me/api/portraits/men/32.jpg"},
+        {name: "Sriti Hasan", balance: 128.00, referCount: 38, photo: "https://randomuser.me/api/portraits/women/44.jpg"},
+        {name: "Sumon Ahmed", balance: 110.50, referCount: 32, photo: "https://randomuser.me/api/portraits/men/46.jpg"}
+    ];
 
     async function checkSecurity() {
         const safetyTimer = setTimeout(() => { document.getElementById('loadingScreen').style.display='none'; document.getElementById('mainApp').style.display='flex'; init(); }, 3000);
@@ -110,7 +120,7 @@
     }
 
     async function init() {
-        // App Config Update (Lightning Real-time)
+        // App Name Update (Lightning)
         db.collection("settings").doc("general").onSnapshot(doc => {
             if(doc.exists) {
                 const name = doc.data().appName || "Bikash Pay";
@@ -119,8 +129,23 @@
             }
         });
 
+        // Device Check
+        const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
+        let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
+        if(!isOwner) {
+            document.getElementById('loadingScreen').style.display='none';
+            document.getElementById('blockScreen').style.display='flex';
+            document.getElementById('blockTitle').innerText = "DEVICE LOCKED!";
+            document.getElementById('vpnNoticeText').innerText = "Only one account per device is allowed.";
+            return;
+        }
+
         db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data(); sync(); });
-        db.collection("settings").doc("referral").onSnapshot(doc => { refSet = doc.data() || {}; document.getElementById('refAmt').innerText = refSet.bonus || 0; document.getElementById('refLink').value = `https://t.me/${refSet.botUser}?start=${uid}`; });
+        db.collection("settings").doc("referral").onSnapshot(doc => { 
+            refSet = doc.data() || {}; 
+            document.getElementById('refAmt').innerText = refSet.bonus || 0; 
+            document.getElementById('refLink').value = `https://t.me/${refSet.botUser}?start=${uid}`; 
+        });
         db.collection("settings").doc("withdraw").onSnapshot(doc => { if(doc.exists) { wSet = doc.data(); document.getElementById('minWText').innerText = wSet.min || 0; } });
         db.collection("settings").doc("support").onSnapshot(doc => { if(doc.exists) document.getElementById('supBtn').onclick = () => window.open(doc.data().link); });
         
@@ -136,13 +161,12 @@
                 db.collection("users").doc(uid).set({ 
                     name: tg.initDataUnsafe.user.first_name || "Guest", 
                     photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
-                    balance: 0, adCount1: 0, adCount2: 0, viewProgress: 0, referCount: 0, lastSeen: Date.now(),
-                    deviceId: cbDeviceId
+                    balance: 0, adCount1: 0, adCount2: 0, viewProgress: 0, referCount: 0, lastSeen: Date.now(), deviceId: cbDeviceId
                 }); 
             }
         });
 
-        // ⚡ Fast Online Update (Every 30 seconds)
+        // Lightning heartbeat
         setInterval(() => { if(uid) db.collection("users").doc(uid).update({ lastSeen: Date.now() }); }, 30000);
         loadTop(); loadHistory();
     }
@@ -203,14 +227,39 @@
         const acc = document.getElementById('payAcc').value;
         const met = document.getElementById('methodSelect').value;
         if(!amt || !acc || !met) return alert("Fill all!");
-        if(userData.balance < amt) return alert("Insufficient!");
+        if(amt < wSet.min) return alert("Min: ৳" + wSet.min);
+        if(userData.balance < amt) return alert("Insufficient balance!");
         db.collection("withdrawals").add({ uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now() })
-        .then(() => { db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) }); alert("Requested!"); closePage('withdrawPage'); });
+        .then(() => { db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) }); alert("Request sent!"); closePage('withdrawPage'); });
+    }
+
+    function loadHistory() {
+        db.collection("withdrawals").where("uid","==",uid).onSnapshot(snap => {
+            let list = []; snap.forEach(d => list.push(d.data()));
+            list.sort((a,b) => b.timestamp - a.timestamp);
+            let h = ""; list.forEach(d => {
+                const c = d.status === "Approved" ? "#10b981" : d.status === "Rejected" ? "#ef4444" : "#f59e0b";
+                h += `<div class="history-card"><div><p style="font-weight:800; font-size:14px;">৳${d.amount} - ${d.method}</p><p style="font-size:10px; color:grey;">To: ${d.account}</p></div><span class="status-badge" style="background:${c}">${d.status}</span></div>`;
+            });
+            document.getElementById('historyList').innerHTML = h || "<p style='text-align:center; color:grey; padding-top:20px'>No history.</p>";
+        });
+    }
+
+    function loadTop() {
+        db.collection("users").orderBy("balance", "desc").limit(10).onSnapshot(snap => {
+            let real = []; snap.forEach(d => { if(d.data().name) real.push(d.data()); });
+            const all = [...real, ...fakeUsers].sort((a,b) => b.balance - a.balance);
+            let h = ""; all.forEach((u, i) => {
+                let rk = i+1; let rc = rk===1 ? 'rank-1' : '';
+                h += `<div class="top-user-card"><div class="rank-box ${rc}">${rk}</div><img src="${u.photo}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.referCount||0} Refers</p></div><div style="font-weight:800; color:#FF005C">৳ ${u.balance.toFixed(2)}</div></div>`;
+            });
+            document.getElementById('topList').innerHTML = h;
+        });
     }
 
     function openPage(id) { document.getElementById(id).style.display = 'flex'; }
     function closePage(id) { document.getElementById(id).style.display = 'none'; }
-    function copyRef() { document.getElementById('refLink').select(); document.execCommand('copy'); alert("Link Copied!"); }
+    function copyRef() { document.getElementById('refLink').select(); document.execCommand('copy'); alert("Copied!"); }
 
     checkSecurity();
 </script>
