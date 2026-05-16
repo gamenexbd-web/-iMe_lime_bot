@@ -21,13 +21,10 @@
         .menu-item { background: white; border-radius: 25px; padding: 25px 10px; text-align: center; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(255,0,92,0.02); }
         .menu-item i { font-size: 32px; color: #FF005C; margin-bottom: 12px; display: block; }
         .menu-item span { font-size: 14px; font-weight: 800; }
-        
-        /* Overlay Header for Folders */
         .page-overlay { position: absolute; inset: 0; background: #FFECF2; z-index: 100; padding: 25px; display: none; flex-direction: column; overflow-y: auto; }
         .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .back-btn { font-size: 18px; font-weight: 800; color: #333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .ov-balance-badge { background: white; color: #FF005C; padding: 6px 15px; border-radius: 50px; font-weight: 800; font-size: 13px; border: 1.5px solid #FF005C; }
-
         .task-option { background: white; padding: 22px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px; }
         .play-tag { font-weight: 800; color: white; background: #FF005C; padding: 6px 18px; border-radius: 50px; font-size: 12px; }
         .top-user-card { background: white; padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; border: 1px solid #fff; }
@@ -49,7 +46,6 @@
 <div id="blockScreen"><h1 id="blockTitle">ACCESS DENIED</h1><p id="vpnNoticeText" style="margin-top:15px; font-weight:600;"></p></div>
 
 <div class="app-container" id="mainApp">
-    <!-- Main Header -->
     <header>
         <div id="appNameHeader" style="font-weight: 800; color: #FF005C; font-size: 20px;">Bikash Pay</div>
         <div class="bdt-badge">৳ <span class="global-balance">0.00</span></div>
@@ -78,7 +74,6 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <!-- Sub Folders (Pages) -->
     <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="historyList"></div></div>
     <div id="topPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="topList"></div></div>
@@ -105,10 +100,9 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // 🛑 টেলিগ্রাম ইউজার চেক
     if (!tg.initData || !tg.initDataUnsafe.user) {
-        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-weight:800; text-align:center; padding:20px;'>🛑 OPEN VIA TELEGRAM</div>";
-        throw new Error("Invalid Auth");
+        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;'>🛑 OPEN VIA TELEGRAM</div>";
+        throw new Error("Invalid User");
     }
 
     let uid = tg.initDataUnsafe.user.id.toString();
@@ -161,7 +155,6 @@
             }
         });
 
-        // 🛡️ ডিভাইস লক চেক
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
         let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
         if(!isOwner) {
@@ -187,7 +180,6 @@
             document.getElementById('methodSelect').innerHTML = h;
         });
 
-        // 🎁 রেফারেল এবং ইউজার ডেটা সিঙ্ক
         const userRef = db.collection("users").doc(uid);
         userRef.get().then((doc) => {
             if (doc.exists) {
@@ -196,18 +188,15 @@
                 const startParam = tg.initDataUnsafe.start_param;
                 let inviterId = (startParam && startParam !== uid) ? startParam : null;
                 const newUser = {
-                    name: tg.initDataUnsafe.user.first_name, 
-                    photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
-                    balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, 
-                    lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: inviterId
+                    name: tg.initDataUnsafe.user.first_name, photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
+                    balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: inviterId
                 };
                 userRef.set(newUser).then(() => {
                     if (inviterId) {
                         db.collection("settings").doc("referral").get().then(rSnap => {
                             const bonus = rSnap.exists ? rSnap.data().bonus : 0;
                             db.collection("users").doc(inviterId).update({
-                                balance: firebase.firestore.FieldValue.increment(bonus),
-                                referCount: firebase.firestore.FieldValue.increment(1)
+                                balance: firebase.firestore.FieldValue.increment(bonus), referCount: firebase.firestore.FieldValue.increment(1)
                             });
                         });
                     }
@@ -222,14 +211,10 @@
 
     function sync() {
         if(userData && settings) {
-            const balances = document.querySelectorAll('.global-balance');
-            balances.forEach(el => el.innerText = (userData.balance || 0).toFixed(2));
+            document.querySelectorAll('.global-balance').forEach(el => el.innerText = (userData.balance || 0).toFixed(2));
             document.getElementById('uLimits').innerText = `T1: ${userData.adCount1||0}/${settings.limit1||0} | T2: ${userData.adCount2||0}/${settings.limit2||0}`;
-            document.getElementById('uName').innerText = userData.name;
-            document.getElementById('uPic').src = userData.photo;
-            document.getElementById('pName').innerText = userData.name; 
-            document.getElementById('pId').innerText = "ID: " + uid;
-            document.getElementById('pPic').src = userData.photo;
+            document.getElementById('uName').innerText = userData.name; document.getElementById('uPic').src = userData.photo;
+            document.getElementById('pName').innerText = userData.name; document.getElementById('pId').innerText = "ID: " + uid; document.getElementById('pPic').src = userData.photo;
             document.getElementById('st1').innerText = `${userData.adCount1||0}/${settings.limit1||0}`;
             document.getElementById('st2').innerText = `${userData.adCount2||0}/${settings.limit2||0}`;
             document.getElementById('sRef').innerText = userData.referCount || 0;
@@ -237,45 +222,37 @@
     }
 
     function handleAdClick(t) {
-        if(isWaiting) return;
-        activeT = t;
+        if(isWaiting) return; activeT = t;
         const count = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
         const limit = t === '1' ? settings.limit1 : settings.limit2;
-        const currentProgress = t === '1' ? (userData.viewProgress1 || 0) : (userData.viewProgress2 || 0);
+        const progress = t === '1' ? (userData.viewProgress1 || 0) : (userData.viewProgress2 || 0);
         if(count >= limit) return alert("Daily limit reached!");
-        if(currentProgress >= (settings.clickAfter || 3)) { 
-            document.getElementById('modalNotice').innerText = settings.clickNotice; 
-            document.getElementById('clickModal').style.display = 'flex'; 
-            document.getElementById('modalBtn').onclick = () => {
-                document.getElementById('clickModal').style.display = 'none';
-                runAd(t, true);
-            };
+        if(progress >= (settings.clickAfter || 3)) { 
+            document.getElementById('modalNotice').innerText = settings.clickNotice; document.getElementById('clickModal').style.display = 'flex'; 
+            document.getElementById('modalBtn').onclick = () => { document.getElementById('clickModal').style.display = 'none'; runAd(t, true); };
         } else { runAd(t, false); }
     }
 
     function runAd(t, c) {
         const zone = t === '1' ? settings.zone1 : settings.zone2;
-        startTimer(t, c); // ১৮ সেকেন্ড টাইমার শুরু
         const old = document.getElementById('monetag-script'); if(old) old.remove();
         const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
-        s.onload = () => { if(window['show_'+zone]) window['show_'+zone]().catch(e => console.log("Ad Closed")); };
+        s.onload = () => { 
+            if(window['show_'+zone]) {
+                window['show_'+zone]().then(() => { startTimer(t, c); }).catch(e => alert("Ad Blocked or failed!"));
+            }
+        };
     }
 
     function startTimer(t, c) {
         isWaiting = true;
-        const countBox = document.getElementById('countdownBox');
-        countBox.style.display = 'block';
-        countBox.style.color = "#FF005C";
+        const countBox = document.getElementById('countdownBox'); countBox.style.display = 'block';
         let waitTime = 18; 
         const timer = setInterval(() => {
             if (waitTime > 0) {
-                countBox.innerText = c ? `👉 Click Ad & Wait ${waitTime}s` : `⏳ Ad Running... Reward in ${waitTime}s`;
-                waitTime--;
+                countBox.innerText = c ? `👉 Click Ad & Wait ${waitTime}s` : `⏳ Ad Running... Reward in ${waitTime}s`; waitTime--;
             } else {
-                clearInterval(timer);
-                updateDB(t, c);
-                countBox.style.display = 'none';
-                isWaiting = false; // কোনো ওয়েটিং টাইম নেই
+                clearInterval(timer); updateDB(t, c); countBox.style.display = 'none'; isWaiting = false;
             }
         }, 1000);
     }
@@ -301,15 +278,13 @@
             uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now()
         }).then(() => {
             db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            alert("Withdraw Success! ✅");
-            closePage('withdrawPage');
+            alert("Withdraw Success! ✅"); closePage('withdrawPage');
         });
     }
 
     function loadHistory() {
         db.collection("withdrawals").where("uid","==",uid).onSnapshot(snap => {
-            let h = ""; let list = [];
-            snap.forEach(doc => list.push(doc.data()));
+            let h = ""; let list = []; snap.forEach(doc => list.push(doc.data()));
             list.sort((a,b) => b.timestamp - a.timestamp);
             list.forEach(d => {
                 const c = d.status === "Approved" ? "#10b981" : d.status === "Rejected" ? "#ef4444" : "#f59e0b";
@@ -334,12 +309,7 @@
 
     function openPage(id) { document.getElementById(id).style.display = 'flex'; }
     function closePage(id) { document.getElementById(id).style.display = 'none'; }
-    function copyRef() { 
-        const refLink = document.getElementById('refLink');
-        refLink.select();
-        document.execCommand('copy');
-        alert("Refer Link Copied!"); 
-    }
+    function copyRef() { const refLink = document.getElementById('refLink'); refLink.select(); document.execCommand('copy'); alert("Refer Link Copied!"); }
 
     checkSecurity();
 </script>
