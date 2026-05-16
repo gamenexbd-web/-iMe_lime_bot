@@ -98,10 +98,10 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // 🛑 টেলিগ্রাম ইউজার অথেন্টিকেশন
+    // 🛑 টেলিগ্রাম সিকিউরিটি
     if (!tg.initData || !tg.initDataUnsafe.user) {
         document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; text-align:center; padding:20px;'>🛑 OPEN VIA TELEGRAM</div>";
-        throw new Error("Unauthorized Access");
+        throw new Error("Unauthorized");
     }
 
     let uid = tg.initDataUnsafe.user.id.toString();
@@ -147,21 +147,10 @@
     }
 
     async function init() {
-        db.collection("settings").doc("general").onSnapshot(doc => {
-            if(doc.exists) {
-                document.getElementById('appNameHeader').innerText = doc.data().appName || "Bikash Pay";
-                document.getElementById('pageTitle').innerText = doc.data().appName || "Bikash Pay";
-            }
-        });
-
+        db.collection("settings").doc("general").onSnapshot(doc => { if(doc.exists) { document.getElementById('appNameHeader').innerText = doc.data().appName || "Bikash Pay"; document.getElementById('pageTitle').innerText = doc.data().appName || "Bikash Pay"; } });
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
         let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
-        if(!isOwner) {
-            document.getElementById('mainApp').style.display='none';
-            document.getElementById('blockScreen').style.display='flex';
-            document.getElementById('blockTitle').innerText = "DEVICE LOCKED!"; 
-            return;
-        }
+        if(!isOwner) { document.getElementById('mainApp').style.display='none'; document.getElementById('blockScreen').style.display='flex'; document.getElementById('blockTitle').innerText = "DEVICE LOCKED!"; return; }
 
         db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data(); sync(); });
         db.collection("settings").doc("referral").onSnapshot(doc => { 
@@ -181,25 +170,19 @@
 
         const userRef = db.collection("users").doc(uid);
         userRef.get().then((doc) => {
-            if (doc.exists) {
-                userRef.onSnapshot(s => { userData = s.data(); sync(); });
-            } else {
+            if (doc.exists) { userRef.onSnapshot(s => { userData = s.data(); sync(); }); } 
+            else {
                 const startParam = tg.initDataUnsafe.start_param;
                 let inviterId = (startParam && startParam !== uid) ? startParam : null;
                 const newUser = {
-                    name: tg.initDataUnsafe.user.first_name, 
-                    photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
-                    balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, 
-                    lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: inviterId
+                    name: tg.initDataUnsafe.user.first_name, photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
+                    balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: inviterId
                 };
                 userRef.set(newUser).then(() => {
                     if (inviterId) {
                         db.collection("settings").doc("referral").get().then(rSnap => {
                             const bonus = rSnap.exists ? rSnap.data().bonus : 0;
-                            db.collection("users").doc(inviterId).update({
-                                balance: firebase.firestore.FieldValue.increment(bonus),
-                                referCount: firebase.firestore.FieldValue.increment(1)
-                            });
+                            db.collection("users").doc(inviterId).update({ balance: firebase.firestore.FieldValue.increment(bonus), referCount: firebase.firestore.FieldValue.increment(1) });
                         });
                     }
                     userRef.onSnapshot(s => { userData = s.data(); sync(); });
@@ -215,11 +198,8 @@
         if(userData && settings) {
             document.querySelectorAll('.global-balance').forEach(el => el.innerText = (userData.balance || 0).toFixed(2));
             document.getElementById('uLimits').innerText = `T1: ${userData.adCount1||0}/${settings.limit1||0} | T2: ${userData.adCount2||0}/${settings.limit2||0}`;
-            document.getElementById('uName').innerText = userData.name;
-            document.getElementById('uPic').src = userData.photo;
-            document.getElementById('pName').innerText = userData.name; 
-            document.getElementById('pId').innerText = "ID: " + uid;
-            document.getElementById('pPic').src = userData.photo;
+            document.getElementById('uName').innerText = userData.name; document.getElementById('uPic').src = userData.photo;
+            document.getElementById('pName').innerText = userData.name; document.getElementById('pId').innerText = "ID: " + uid; document.getElementById('pPic').src = userData.photo;
             document.getElementById('st1').innerText = `${userData.adCount1||0}/${settings.limit1||0}`;
             document.getElementById('st2').innerText = `${userData.adCount2||0}/${settings.limit2||0}`;
             document.getElementById('sRef').innerText = userData.referCount || 0;
@@ -228,7 +208,7 @@
 
     function handleAdClick(t) {
         if(isWaiting) return;
-        // চেক অ্যাডমিন অ্যাড অফ রেখেছে কি না
+        // ✅ ফিক্সড Ad Status OFF চেক
         if(settings.adStatus === "OFF") return alert("Task is currently turned OFF by Admin.");
 
         activeT = t;
@@ -241,32 +221,24 @@
         if(progress >= (settings.clickAfter || 3)) { 
             document.getElementById('modalNotice').innerText = settings.clickNotice; 
             document.getElementById('clickModal').style.display = 'flex'; 
-            document.getElementById('modalBtn').onclick = () => {
-                document.getElementById('clickModal').style.display = 'none';
-                runAd(t, true);
-            };
-        } else { 
-            runAd(t, false); 
-        }
+            document.getElementById('modalBtn').onclick = () => { document.getElementById('clickModal').style.display = 'none'; runAd(t, true); };
+        } else { runAd(t, false); }
     }
 
     function runAd(t, c) {
         const zone = t === '1' ? settings.zone1 : settings.zone2;
         const old = document.getElementById('monetag-script'); if(old) old.remove();
-        const s = document.createElement('script'); 
-        s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; 
-        s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); 
-        document.head.appendChild(s);
+        const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
         
-        let startPoint = 0;
+        let startMoment = 0;
         s.onload = () => { 
             if(window['show_'+zone]) {
-                startPoint = Date.now();
+                startMoment = Date.now();
                 isWaiting = true;
-                startTimerUI();
+                showTimer();
                 window['show_'+zone]().then(() => {
-                    let watched = (Date.now() - startPoint) / 1000;
-                    if(watched >= 18) {
+                    let duration = (Date.now() - startMoment) / 1000;
+                    if (duration >= 18) {
                         updateDB(t, c);
                         alert("Reward Added! ✅");
                     } else {
@@ -282,17 +254,17 @@
         };
     }
 
-    function startTimerUI() {
+    function showTimer() {
         const countBox = document.getElementById('countdownBox');
         countBox.style.display = 'block';
-        let left = 18;
-        const intr = setInterval(() => {
-            if(left > 0 && isWaiting) {
-                countBox.innerText = `⏳ Watching Ad: ${left}s`;
-                left--;
+        let timeLeft = 18;
+        const interval = setInterval(() => {
+            if (timeLeft > 0 && isWaiting) {
+                countBox.innerText = `⏳ Watching Ad: ${timeLeft}s`;
+                timeLeft--;
             } else {
-                clearInterval(intr);
-                if(isWaiting) countBox.innerText = `✅ Time Over! Close Ad Now.`;
+                clearInterval(interval);
+                if (isWaiting) countBox.innerText = `✅ Time Over! Close ad now.`;
             }
         }, 1000);
     }
@@ -314,19 +286,15 @@
         if(!amt || !acc || !met) return alert("Fill all fields!");
         if(amt < wSet.min) return alert("Min: ৳" + wSet.min);
         if(userData.balance < amt) return alert("Insufficient balance!");
-        db.collection("withdrawals").add({
-            uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now()
-        }).then(() => {
+        db.collection("withdrawals").add({ uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now() }).then(() => {
             db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            alert("Withdraw Success! ✅");
-            closePage('withdrawPage');
+            alert("Withdraw Success! ✅"); closePage('withdrawPage');
         });
     }
 
     function loadHistory() {
         db.collection("withdrawals").where("uid","==",uid).onSnapshot(snap => {
-            let h = ""; let list = [];
-            snap.forEach(doc => list.push(doc.data()));
+            let h = ""; let list = []; snap.forEach(doc => list.push(doc.data()));
             list.sort((a,b) => b.timestamp - a.timestamp);
             list.forEach(d => {
                 const c = d.status === "Approved" ? "#10b981" : d.status === "Rejected" ? "#ef4444" : "#f59e0b";
@@ -351,12 +319,7 @@
 
     function openPage(id) { document.getElementById(id).style.display = 'flex'; }
     function closePage(id) { document.getElementById(id).style.display = 'none'; }
-    function copyRef() { 
-        const refLink = document.getElementById('refLink');
-        refLink.select();
-        document.execCommand('copy');
-        alert("Refer Link Copied!"); 
-    }
+    function copyRef() { const refLink = document.getElementById('refLink'); refLink.select(); document.execCommand('copy'); alert("Refer Link Copied!"); }
 
     checkSecurity();
 </script>
