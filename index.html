@@ -22,7 +22,7 @@
         .menu-item i { font-size: 32px; color: #FF005C; margin-bottom: 12px; display: block; }
         .menu-item span { font-size: 14px; font-weight: 800; }
         
-        /* Overlay Pages Header Style */
+        /* Overlay Header for Folders */
         .page-overlay { position: absolute; inset: 0; background: #FFECF2; z-index: 100; padding: 25px; display: none; flex-direction: column; overflow-y: auto; }
         .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .back-btn { font-size: 18px; font-weight: 800; color: #333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
@@ -49,6 +49,7 @@
 <div id="blockScreen"><h1 id="blockTitle">ACCESS DENIED</h1><p id="vpnNoticeText" style="margin-top:15px; font-weight:600;"></p></div>
 
 <div class="app-container" id="mainApp">
+    <!-- Main Header -->
     <header>
         <div id="appNameHeader" style="font-weight: 800; color: #FF005C; font-size: 20px;">Bikash Pay</div>
         <div class="bdt-badge">৳ <span class="global-balance">0.00</span></div>
@@ -64,7 +65,7 @@
         </div>
         <div class="wallet-card">
             <small>Wallet</small>
-            <div><span class="global-balance">0.00</span></div>
+            <div>৳ <span class="global-balance">0.00</span></div>
         </div>
     </div>
 
@@ -77,81 +78,13 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <!-- Withdraw Page -->
-    <div id="withdrawPage" class="page-overlay">
-        <div class="overlay-header">
-            <div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div>
-            <div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div>
-        </div>
-        <div style="background:white; padding:25px; border-radius:30px;">
-            <p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p>
-            <select id="methodSelect"><option value="">Loading Methods...</option></select>
-            <input type="text" id="payAcc" placeholder="Account Number">
-            <input type="number" id="payAmt" placeholder="Amount (৳)">
-            <button class="btn-main" onclick="submitWithdraw()">Submit Request</button>
-            <button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button>
-        </div>
-    </div>
-
-    <!-- History Page -->
-    <div id="historyPage" class="page-overlay">
-        <div class="overlay-header">
-            <div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal History</div>
-            <div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div>
-        </div>
-        <div id="historyList"></div>
-    </div>
-
-    <!-- Top User Page -->
-    <div id="topPage" class="page-overlay">
-        <div class="overlay-header">
-            <div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div>
-            <div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div>
-        </div>
-        <div id="topList"></div>
-    </div>
-
-    <!-- Profile Page -->
-    <div id="profilePage" class="page-overlay">
-        <div class="overlay-header">
-            <div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> My Stats</div>
-            <div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div>
-        </div>
-        <div style="text-align:center;">
-            <img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white; box-shadow:0 10px 20px rgba(0,0,0,0.05);">
-            <h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2>
-            <p id="pId" style="color:grey; font-size:13px;">ID: 000</p>
-        </div>
-        <div style="background:white; padding:20px; border-radius:20px; margin-top:20px;">
-            <p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1 Limit: <span id="st1" style="color:#FF005C">0/0</span></p>
-            <p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2 Limit: <span id="st2" style="color:#FF005C">0/0</span></p>
-            <p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Total Refers: <span id="sRef" style="color:#FF005C">0</span></p>
-        </div>
-    </div>
-
-    <!-- Invite Page -->
-    <div id="invitePage" class="page-overlay">
-        <div class="overlay-header">
-            <div class="back-btn" onclick="closePage('invitePage')"><i class="fa-solid fa-arrow-left"></i> Invite</div>
-            <div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div>
-        </div>
-        <div style="background:white; padding:30px; border-radius:30px; text-align:center;">
-            <h3 style="font-weight:800; color:#333;">Refer & Earn ৳<span id="refAmt">0</span></h3>
-            <input type="text" id="refLink" readonly style="width:100%; background:#f0f0f0; border:1px dashed #FF005C; padding:12px; border-radius:12px; margin-top:20px; font-size:11px; text-align:center;">
-            <button onclick="copyRef()" style="width:100%; background:#FF005C; color:white; border:none; padding:15px; border-radius:15px; margin-top:15px; font-weight:800;">Copy Link</button>
-        </div>
-    </div>
-
-    <!-- Task Page -->
-    <div id="taskPage" class="page-overlay">
-        <div class="overlay-header">
-            <div class="back-btn" onclick="closePage('taskPage')"><i class="fa-solid fa-arrow-left"></i> Start Task</div>
-            <div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div>
-        </div>
-        <div class="task-option" id="btnT1" onclick="handleAdClick('1')"><span style="font-weight:800">Task One</span><span class="play-tag">Play</span></div>
-        <div class="task-option" id="btnT2" onclick="handleAdClick('2')"><span style="font-weight:800">Task Two</span><span class="play-tag">Play</span></div>
-        <div id="countdownBox" style="display:none;"></div>
-    </div>
+    <!-- Sub Folders (Pages) -->
+    <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
+    <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="historyList"></div></div>
+    <div id="topPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="topList"></div></div>
+    <div id="profilePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> Stats</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white; box-shadow:0 10px 20px rgba(0,0,0,0.05);"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1: <span id="st1" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2: <span id="st2" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Refers: <span id="sRef" style="color:#FF005C">0</span></p></div></div>
+    <div id="invitePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('invitePage')"><i class="fa-solid fa-arrow-left"></i> Invite</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:30px; border-radius:30px; text-align:center;"><h3 style="font-weight:800; color:#333;">Refer & Earn ৳<span id="refAmt">0</span></h3><input type="text" id="refLink" readonly style="width:100%; background:#f0f0f0; border:1px dashed #FF005C; padding:12px; border-radius:12px; margin-top:20px; font-size:11px; text-align:center;"><button onclick="copyRef()" style="width:100%; background:#FF005C; color:white; border:none; padding:15px; border-radius:15px; margin-top:15px; font-weight:800;">Copy Link</button></div></div>
+    <div id="taskPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('taskPage')"><i class="fa-solid fa-arrow-left"></i> Start Task</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div class="task-option" id="btnT1" onclick="handleAdClick('1')"><span style="font-weight:800">Task One</span><span class="play-tag">Play</span></div><div class="task-option" id="btnT2" onclick="handleAdClick('2')"><span style="font-weight:800">Task Two</span><span class="play-tag">Play</span></div><div id="countdownBox" style="display:none;"></div></div>
 </div>
 
 <div id="clickModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; display:none; justify-content:center; align-items:center; padding:20px;"><div style="background:white; padding:30px; border-radius:30px; text-align:center; width:100%; max-width:350px;"><h2 style="color:#FF005C">Attention!</h2><p id="modalNotice" style="margin-top:10px; font-size:14px; color:#555;"></p><button id="modalBtn" style="background:#10b981; color:white; padding:15px; width:100%; border:none; border-radius:15px; margin-top:20px; font-weight:800;">Show Ad & Click</button></div></div>
@@ -172,11 +105,25 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    let uid = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "0000";
+    // 🛑 টেলিগ্রাম ইউজার চেক
+    if (!tg.initData || !tg.initDataUnsafe.user) {
+        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-weight:800; text-align:center; padding:20px;'>🛑 OPEN VIA TELEGRAM</div>";
+        throw new Error("Invalid Auth");
+    }
+
+    let uid = tg.initDataUnsafe.user.id.toString();
     let cbDeviceId = localStorage.getItem('cb_hw_token') || 'cb-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
     localStorage.setItem('cb_hw_token', cbDeviceId);
 
     let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {};
+
+    const fakeUsers = [
+        {name: "Mohammad Rakib", balance: 145.20, referCount: 52, photo: "https://randomuser.me/api/portraits/men/32.jpg"},
+        {name: "Sriti Hasan", balance: 128.00, referCount: 38, photo: "https://randomuser.me/api/portraits/women/44.jpg"},
+        {name: "Sumon Ahmed", balance: 110.50, referCount: 32, photo: "https://randomuser.me/api/portraits/men/46.jpg"},
+        {name: "Mst. Jesmin", balance: 95.80, referCount: 28, photo: "https://randomuser.me/api/portraits/women/12.jpg"},
+        {name: "Abdur Rahman", balance: 88.00, referCount: 21, photo: "https://randomuser.me/api/portraits/men/15.jpg"}
+    ];
 
     async function checkSecurity() {
         try {
@@ -187,8 +134,7 @@
                 const match = cfText.match(/loc=([A-Z]{2})/);
                 if (match) {
                     const currentLoc = match[1];
-                    const allowedStr = vSnap.data().allowed || "";
-                    const allowedCountries = allowedStr.split(',').map(c => c.trim().toUpperCase());
+                    const allowedCountries = (vSnap.data().allowed || "").split(',').map(c => c.trim().toUpperCase());
                     if (!allowedCountries.includes(currentLoc)) {
                         document.getElementById('loadingScreen').style.display='none';
                         document.getElementById('blockScreen').style.display='flex';
@@ -215,6 +161,7 @@
             }
         });
 
+        // 🛡️ ডিভাইস লক চেক
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
         let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
         if(!isOwner) {
@@ -228,7 +175,8 @@
         db.collection("settings").doc("referral").onSnapshot(doc => { 
             refSet = doc.data() || {}; 
             document.getElementById('refAmt').innerText = refSet.bonus || 0; 
-            document.getElementById('refLink').value = `https://t.me/${refSet.botUser}?start=${uid}`; 
+            let cleanBotUser = (refSet.botUser || "").replace('@', '');
+            document.getElementById('refLink').value = `https://t.me/${cleanBotUser}?start=${uid}`; 
         });
         db.collection("settings").doc("withdraw").onSnapshot(doc => { if(doc.exists) { wSet = doc.data(); document.getElementById('minWText').innerText = wSet.min || 0; } });
         db.collection("settings").doc("support").onSnapshot(doc => { if(doc.exists) document.getElementById('supBtn').onclick = () => window.open(doc.data().link); });
@@ -239,6 +187,7 @@
             document.getElementById('methodSelect').innerHTML = h;
         });
 
+        // 🎁 রেফারেল এবং ইউজার ডেটা সিঙ্ক
         const userRef = db.collection("users").doc(uid);
         userRef.get().then((doc) => {
             if (doc.exists) {
@@ -246,14 +195,12 @@
             } else {
                 const startParam = tg.initDataUnsafe.start_param;
                 let inviterId = (startParam && startParam !== uid) ? startParam : null;
-
                 const newUser = {
-                    name: tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : "User", 
-                    photo: tg.initDataUnsafe.user ? tg.initDataUnsafe.user.photo_url : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
+                    name: tg.initDataUnsafe.user.first_name, 
+                    photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
                     balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, 
                     lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: inviterId
                 };
-
                 userRef.set(newUser).then(() => {
                     if (inviterId) {
                         db.collection("settings").doc("referral").get().then(rSnap => {
@@ -264,6 +211,7 @@
                             });
                         });
                     }
+                    userRef.onSnapshot(s => { userData = s.data(); sync(); });
                 });
             }
         });
@@ -274,10 +222,8 @@
 
     function sync() {
         if(userData && settings) {
-            // Update all global balance spans
             const balances = document.querySelectorAll('.global-balance');
             balances.forEach(el => el.innerText = (userData.balance || 0).toFixed(2));
-
             document.getElementById('uLimits').innerText = `T1: ${userData.adCount1||0}/${settings.limit1||0} | T2: ${userData.adCount2||0}/${settings.limit2||0}`;
             document.getElementById('uName').innerText = userData.name;
             document.getElementById('uPic').src = userData.photo;
@@ -309,10 +255,10 @@
 
     function runAd(t, c) {
         const zone = t === '1' ? settings.zone1 : settings.zone2;
-        startTimer(t, c);
+        startTimer(t, c); // ১৮ সেকেন্ড টাইমার শুরু
         const old = document.getElementById('monetag-script'); if(old) old.remove();
         const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
-        s.onload = () => { if(window['show_'+zone]) window['show_'+zone]().catch(e => console.log("Ad Error")); };
+        s.onload = () => { if(window['show_'+zone]) window['show_'+zone]().catch(e => console.log("Ad Closed")); };
     }
 
     function startTimer(t, c) {
@@ -329,7 +275,7 @@
                 clearInterval(timer);
                 updateDB(t, c);
                 countBox.style.display = 'none';
-                isWaiting = false;
+                isWaiting = false; // কোনো ওয়েটিং টাইম নেই
             }
         }, 1000);
     }
@@ -375,11 +321,12 @@
 
     function loadTop() {
         db.collection("users").orderBy("balance", "desc").limit(10).onSnapshot(snap => {
+            let real = []; snap.forEach(doc => real.push(doc.data()));
+            const all = [...real, ...fakeUsers].sort((a,b) => b.balance - a.balance);
             let h = "";
-            snap.forEach((doc, i) => {
-                const u = doc.data();
-                let rk = i+1; let rc = rk===1 ? 'rank-1' : '';
-                h += `<div class="top-user-card"><div class="rank-box ${rk===1?'rank-1':''}">${rk}</div><img src="${u.photo}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.referCount||0} Refers</p></div><div style="font-weight:800; color:#FF005C">৳ ${u.balance.toFixed(2)}</div></div>`;
+            all.slice(0, 10).forEach((u, i) => {
+                let rk = i+1;
+                h += `<div class="top-user-card"><div class="rank-box ${rk===1?'rank-1':''}">${rk}</div><img src="${u.photo || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.referCount||0} Refers</p></div><div style="font-weight:800; color:#FF005C">৳ ${u.balance.toFixed(2)}</div></div>`;
             });
             document.getElementById('topList').innerHTML = h;
         });
