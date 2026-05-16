@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -57,7 +57,6 @@
     </div>
 
     <div id="withdrawPage" class="page-overlay"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
-    
     <div id="historyPage" class="page-overlay"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal History</div><div id="historyList"></div></div>
     <div id="topPage" class="page-overlay"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div id="topList"></div></div>
     <div id="profilePage" class="page-overlay"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> My Stats</div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white; box-shadow:0 10px 20px rgba(0,0,0,0.05);"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1 Limit: <span id="st1" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2 Limit: <span id="st2" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Total Refers: <span id="sRef" style="color:#FF005C">0</span></p></div></div>
@@ -201,9 +200,10 @@
 
     function runAd(t, c) {
         const zone = t === '1' ? settings.zone1 : settings.zone2;
+        startTimer(t, c); // টাইমার সাথে সাথেই শুরু হবে
         const old = document.getElementById('monetag-script'); if(old) old.remove();
         const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
-        s.onload = () => { if(window['show_'+zone]) window['show_'+zone]().then(() => startTimer(t, c)).catch(() => alert("Ad Blocked!")); };
+        s.onload = () => { if(window['show_'+zone]) window['show_'+zone]().catch(e => console.log("Ad Error")); };
     }
 
     function startTimer(t, c) {
@@ -222,7 +222,7 @@
                 clearInterval(timer);
                 updateDB(t, c);
                 countBox.style.display = 'none';
-                isWaiting = false;
+                isWaiting = false; // ১৮ সেকেন্ড পরেই আনলক
             }
         }, 1000);
     }
