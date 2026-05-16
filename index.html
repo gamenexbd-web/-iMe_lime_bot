@@ -72,7 +72,6 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <!-- সাব-ফোল্ডারগুলোতে গ্লোবাল ব্যালেন্স যোগ করা হয়েছে -->
     <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="historyList"></div></div>
     <div id="topPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="topList"></div></div>
@@ -99,7 +98,6 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // 🛑 টেলিগ্রাম সিকিউরিটি
     if (!tg.initData || !tg.initDataUnsafe.user) {
         document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; text-align:center; padding:20px;'>🛑 OPEN VIA TELEGRAM</div>";
         throw new Error("Unauthorized");
@@ -209,12 +207,12 @@
 
     function handleAdClick(t) {
         if(isWaiting) return;
-        // চেক অ্যাডমিন অ্যাড অফ রেখেছে কি না
-        if(settings.adStatus === "OFF") return alert("Task is currently turned OFF by Admin.");
+        if(settings.adStatus === "OFF") return alert("Task is currently OFF by Admin.");
 
         activeT = t;
         const count = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
         const limit = t === '1' ? settings.limit1 : settings.limit2;
+        // স্বতন্ত্র প্রগ্রেস চেক (Task 1 এর জন্য viewProgress1, Task 2 এর জন্য viewProgress2)
         const progress = t === '1' ? (userData.viewProgress1 || 0) : (userData.viewProgress2 || 0);
 
         if(count >= limit) return alert("Daily limit reached!");
@@ -222,10 +220,7 @@
         if(progress >= (settings.clickAfter || 3)) { 
             document.getElementById('modalNotice').innerText = settings.clickNotice; 
             document.getElementById('clickModal').style.display = 'flex'; 
-            document.getElementById('modalBtn').onclick = () => {
-                document.getElementById('clickModal').style.display = 'none';
-                runAd(t, true);
-            };
+            document.getElementById('modalBtn').onclick = () => { document.getElementById('clickModal').style.display = 'none'; runAd(t, true); };
         } else { 
             runAd(t, false); 
         }
@@ -234,21 +229,17 @@
     function runAd(t, c) {
         const zone = t === '1' ? settings.zone1 : settings.zone2;
         const old = document.getElementById('monetag-script'); if(old) old.remove();
-        const s = document.createElement('script'); 
-        s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; 
-        s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); 
-        document.head.appendChild(s);
+        const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
         
-        let startPoint = 0;
+        let startMoment = 0;
         s.onload = () => { 
             if(window['show_'+zone]) {
-                startPoint = Date.now();
+                startMoment = Date.now();
                 isWaiting = true;
-                startTimerUI();
+                showTimer();
                 window['show_'+zone]().then(() => {
-                    // বিজ্ঞাপন ক্লোজ করার পর কতক্ষণ দেখলো তা চেক হবে
-                    let watched = (Date.now() - startPoint) / 1000;
-                    if(watched >= 15) { // ১৫ সেকেন্ড দেখা বাধ্যতামূলক
+                    let duration = (Date.now() - startMoment) / 1000;
+                    if (duration >= 15) { // ১৫ সেকেন্ড দেখা বাধ্যতামূলক
                         updateDB(t, c);
                         alert("Reward Added! ✅");
                     } else {
@@ -264,22 +255,23 @@
         };
     }
 
-    function startTimerUI() {
+    function showTimer() {
         const countBox = document.getElementById('countdownBox');
         countBox.style.display = 'block';
-        let left = 15; // ১৫ সেকেন্ড কাউন্টডাউন
-        const intr = setInterval(() => {
-            if(left > 0 && isWaiting) {
-                countBox.innerText = `⏳ Watching Ad: ${left}s`;
-                left--;
+        let timeLeft = 15;
+        const interval = setInterval(() => {
+            if (timeLeft > 0 && isWaiting) {
+                countBox.innerText = `⏳ Watching Ad: ${timeLeft}s`;
+                timeLeft--;
             } else {
-                clearInterval(intr);
-                if(isWaiting) countBox.innerText = `✅ 15s Complete! Now close the ad.`;
+                clearInterval(interval);
+                if (isWaiting) countBox.innerText = `✅ Time Over! Close ad now.`;
             }
         }, 1000);
     }
 
     function updateDB(t, c) {
+        // স্বতন্ত্র ডাটাবেস আপডেট লজিক
         const progressField = t === '1' ? 'viewProgress1' : 'viewProgress2';
         const countField = t === '1' ? 'adCount1' : 'adCount2';
         db.collection("users").doc(uid).update({
@@ -296,19 +288,15 @@
         if(!amt || !acc || !met) return alert("Fill all fields!");
         if(amt < wSet.min) return alert("Min: ৳" + wSet.min);
         if(userData.balance < amt) return alert("Insufficient balance!");
-        db.collection("withdrawals").add({
-            uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now()
-        }).then(() => {
+        db.collection("withdrawals").add({ uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now() }).then(() => {
             db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            alert("Withdraw Success! ✅");
-            closePage('withdrawPage');
+            alert("Withdraw Success! ✅"); closePage('withdrawPage');
         });
     }
 
     function loadHistory() {
         db.collection("withdrawals").where("uid","==",uid).onSnapshot(snap => {
-            let h = ""; let list = [];
-            snap.forEach(doc => list.push(doc.data()));
+            let h = ""; let list = []; snap.forEach(doc => list.push(doc.data()));
             list.sort((a,b) => b.timestamp - a.timestamp);
             list.forEach(d => {
                 const c = d.status === "Approved" ? "#10b981" : d.status === "Rejected" ? "#ef4444" : "#f59e0b";
@@ -333,12 +321,7 @@
 
     function openPage(id) { document.getElementById(id).style.display = 'flex'; }
     function closePage(id) { document.getElementById(id).style.display = 'none'; }
-    function copyRef() { 
-        const refLink = document.getElementById('refLink');
-        refLink.select();
-        document.execCommand('copy');
-        alert("Refer Link Copied!"); 
-    }
+    function copyRef() { const refLink = document.getElementById('refLink'); refLink.select(); document.execCommand('copy'); alert("Refer Link Copied!"); }
 
     checkSecurity();
 </script>
