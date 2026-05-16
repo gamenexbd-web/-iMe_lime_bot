@@ -72,6 +72,7 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
+    <!-- Folders with Global Balance Badge -->
     <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="historyList"></div></div>
     <div id="topPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="topList"></div></div>
@@ -99,8 +100,8 @@
     tg.expand();
 
     if (!tg.initData || !tg.initDataUnsafe.user) {
-        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; text-align:center; padding:20px;'>🛑 OPEN VIA TELEGRAM</div>";
-        throw new Error("Unauthorized");
+        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;'>🛑 OPEN VIA TELEGRAM</div>";
+        throw new Error("Invalid Auth");
     }
 
     let uid = tg.initDataUnsafe.user.id.toString();
@@ -207,23 +208,21 @@
 
     function handleAdClick(t) {
         if(isWaiting) return;
-        if(settings.adStatus === "OFF") return alert("Task is currently OFF by Admin.");
+        if(settings.adStatus === "OFF") return alert("Task is currently turned OFF by Admin.");
 
         activeT = t;
         const count = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
         const limit = t === '1' ? settings.limit1 : settings.limit2;
-        // স্বতন্ত্র প্রগ্রেস চেক (Task 1 এর জন্য viewProgress1, Task 2 এর জন্য viewProgress2)
         const progress = t === '1' ? (userData.viewProgress1 || 0) : (userData.viewProgress2 || 0);
+        const clickLimit = t === '1' ? (settings.clickAfter1 || 3) : (settings.clickAfter2 || 3);
 
         if(count >= limit) return alert("Daily limit reached!");
 
-        if(progress >= (settings.clickAfter || 3)) { 
+        if(progress >= clickLimit) { 
             document.getElementById('modalNotice').innerText = settings.clickNotice; 
             document.getElementById('clickModal').style.display = 'flex'; 
             document.getElementById('modalBtn').onclick = () => { document.getElementById('clickModal').style.display = 'none'; runAd(t, true); };
-        } else { 
-            runAd(t, false); 
-        }
+        } else { runAd(t, false); }
     }
 
     function runAd(t, c) {
@@ -236,10 +235,10 @@
             if(window['show_'+zone]) {
                 startMoment = Date.now();
                 isWaiting = true;
-                showTimer();
+                showTimerUI();
                 window['show_'+zone]().then(() => {
                     let duration = (Date.now() - startMoment) / 1000;
-                    if (duration >= 15) { // ১৫ সেকেন্ড দেখা বাধ্যতামূলক
+                    if (duration >= 15) {
                         updateDB(t, c);
                         alert("Reward Added! ✅");
                     } else {
@@ -255,7 +254,7 @@
         };
     }
 
-    function showTimer() {
+    function showTimerUI() {
         const countBox = document.getElementById('countdownBox');
         countBox.style.display = 'block';
         let timeLeft = 15;
@@ -271,11 +270,13 @@
     }
 
     function updateDB(t, c) {
-        // স্বতন্ত্র ডাটাবেস আপডেট লজিক
         const progressField = t === '1' ? 'viewProgress1' : 'viewProgress2';
         const countField = t === '1' ? 'adCount1' : 'adCount2';
+        // টাস্ক অনুযায়ী আলাদা রিওয়ার্ড লজিক
+        const rewardAmount = t === '1' ? (settings.reward1 || 0) : (settings.reward2 || 0);
+
         db.collection("users").doc(uid).update({
-            balance: firebase.firestore.FieldValue.increment(settings.reward || 0),
+            balance: firebase.firestore.FieldValue.increment(rewardAmount),
             [progressField]: c ? 0 : firebase.firestore.FieldValue.increment(1),
             [countField]: firebase.firestore.FieldValue.increment(1)
         });
