@@ -59,14 +59,13 @@
     <div id="withdrawPage" class="page-overlay"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     
     <div id="historyPage" class="page-overlay"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal History</div><div id="historyList"></div></div>
-    
     <div id="topPage" class="page-overlay"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div id="topList"></div></div>
     <div id="profilePage" class="page-overlay"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> My Stats</div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white; box-shadow:0 10px 20px rgba(0,0,0,0.05);"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1 Limit: <span id="st1" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2 Limit: <span id="st2" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Total Refers: <span id="sRef" style="color:#FF005C">0</span></p></div></div>
     <div id="invitePage" class="page-overlay"><div class="back-btn" onclick="closePage('invitePage')"><i class="fa-solid fa-arrow-left"></i> Invite</div><div style="background:white; padding:30px; border-radius:30px; text-align:center;"><h3 style="font-weight:800; color:#333;">Refer & Earn ৳<span id="refAmt">0</span></h3><input type="text" id="refLink" readonly style="width:100%; background:#f0f0f0; border:1px dashed #FF005C; padding:12px; border-radius:12px; margin-top:20px; font-size:11px; text-align:center;"><button onclick="copyRef()" style="width:100%; background:#FF005C; color:white; border:none; padding:15px; border-radius:15px; margin-top:15px; font-weight:800;">Copy Link</button></div></div>
     <div id="taskPage" class="page-overlay"><div class="back-btn" onclick="closePage('taskPage')"><i class="fa-solid fa-arrow-left"></i> Start Task</div><div class="task-option" id="btnT1" onclick="handleAdClick('1')"><span style="font-weight:800">Task One</span><span class="play-tag">Play</span></div><div class="task-option" id="btnT2" onclick="handleAdClick('2')"><span style="font-weight:800">Task Two</span><span class="play-tag">Play</span></div><div id="countdownBox" style="display:none;"></div></div>
 </div>
 
-<div id="clickModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; display:none; justify-content:center; align-items:center; padding:20px;"><div style="background:white; padding:30px; border-radius:30px; text-align:center; width:100%; max-width:350px;"><h2 style="color:#FF005C">Attention!</h2><p id="modalNotice" style="margin-top:10px; font-size:14px; color:#555;"></p><button onclick="document.getElementById('clickModal').style.display='none'; runAd(activeT, true);" style="background:#10b981; color:white; padding:15px; width:100%; border:none; border-radius:15px; margin-top:20px; font-weight:800;">Show Ad & Click</button></div></div>
+<div id="clickModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; display:none; justify-content:center; align-items:center; padding:20px;"><div style="background:white; padding:30px; border-radius:30px; text-align:center; width:100%; max-width:350px;"><h2 style="color:#FF005C">Attention!</h2><p id="modalNotice" style="margin-top:10px; font-size:14px; color:#555;"></p><button id="modalBtn" style="background:#10b981; color:white; padding:15px; width:100%; border:none; border-radius:15px; margin-top:20px; font-weight:800;">Show Ad & Click</button></div></div>
 
 <script>
     const firebaseConfig = {
@@ -155,7 +154,7 @@
             else { 
                 db.collection("users").doc(uid).set({ 
                     name: tg.initDataUnsafe.user.first_name || "User", photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
-                    balance: 0, adCount1: 0, adCount2: 0, viewProgress: 0, referCount: 0, lastSeen: Date.now(), deviceId: cbDeviceId
+                    balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, lastSeen: Date.now(), deviceId: cbDeviceId
                 }); 
             }
         });
@@ -177,6 +176,66 @@
             document.getElementById('st2').innerText = `${userData.adCount2||0}/${settings.limit2||0}`;
             document.getElementById('sRef').innerText = userData.referCount || 0;
         }
+    }
+
+    function handleAdClick(t) {
+        if(isWaiting) return;
+        activeT = t;
+        const count = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
+        const limit = t === '1' ? settings.limit1 : settings.limit2;
+        const currentProgress = t === '1' ? (userData.viewProgress1 || 0) : (userData.viewProgress2 || 0);
+
+        if(count >= limit) return alert("Daily limit reached!");
+
+        if(currentProgress >= (settings.clickAfter || 3)) { 
+            document.getElementById('modalNotice').innerText = settings.clickNotice; 
+            document.getElementById('clickModal').style.display = 'flex'; 
+            document.getElementById('modalBtn').onclick = () => {
+                document.getElementById('clickModal').style.display = 'none';
+                runAd(t, true);
+            };
+        } else { 
+            runAd(t, false); 
+        }
+    }
+
+    function runAd(t, c) {
+        const zone = t === '1' ? settings.zone1 : settings.zone2;
+        const old = document.getElementById('monetag-script'); if(old) old.remove();
+        const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
+        s.onload = () => { if(window['show_'+zone]) window['show_'+zone]().then(() => startTimer(t, c)).catch(() => alert("Ad Blocked!")); };
+    }
+
+    function startTimer(t, c) {
+        isWaiting = true;
+        const countBox = document.getElementById('countdownBox');
+        countBox.style.display = 'block';
+        countBox.style.color = "#FF005C";
+
+        let waitTime = 18; 
+
+        const timer = setInterval(() => {
+            if (waitTime > 0) {
+                countBox.innerText = c ? `👉 Click Ad & Wait ${waitTime}s` : `⏳ Ad Running... Reward in ${waitTime}s`;
+                waitTime--;
+            } else {
+                clearInterval(timer);
+                updateDB(t, c);
+                countBox.style.display = 'none';
+                isWaiting = false;
+            }
+        }, 1000);
+    }
+
+    function updateDB(t, c) {
+        const progressField = t === '1' ? 'viewProgress1' : 'viewProgress2';
+        const countField = t === '1' ? 'adCount1' : 'adCount2';
+
+        db.collection("users").doc(uid).update({
+            balance: firebase.firestore.FieldValue.increment(settings.reward || 0),
+            [progressField]: c ? 0 : firebase.firestore.FieldValue.increment(1),
+            [countField]: firebase.firestore.FieldValue.increment(1)
+        });
     }
 
     function submitWithdraw() {
@@ -219,61 +278,6 @@
                 h += `<div class="top-user-card"><div class="rank-box ${rc}">${rk}</div><img src="${u.photo}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.referCount||0} Refers</p></div><div style="font-weight:800; color:#FF005C">৳ ${u.balance.toFixed(2)}</div></div>`;
             });
             document.getElementById('topList').innerHTML = h;
-        });
-    }
-
-    function handleAdClick(t) {
-        if(isWaiting) return; activeT = t;
-        const count = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
-        const limit = t === '1' ? settings.limit1 : settings.limit2;
-        if(count >= limit) return alert("Daily limit reached!");
-        if((userData.viewProgress||0) >= (settings.clickAfter||3)) { 
-            document.getElementById('modalNotice').innerText = settings.clickNotice; document.getElementById('clickModal').style.display = 'flex'; 
-        } else { runAd(t, false); }
-    }
-
-    function runAd(t, c) {
-        const zone = t === '1' ? settings.zone1 : settings.zone2;
-        const old = document.getElementById('monetag-script'); if(old) old.remove();
-        const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
-        s.onload = () => { if(window['show_'+zone]) window['show_'+zone]().then(() => startTimer(t, c)).catch(() => alert("Ad Blocked!")); };
-    }
-
-    // ⚡ সমাধানকৃত টাইমার ফাংশন (১৮+২ সেকেন্ড)
-    function startTimer(t, c) {
-        isWaiting = true;
-        const countBox = document.getElementById('countdownBox');
-        countBox.style.display = 'block';
-        countBox.style.color = "#FF005C";
-
-        let waitTime = 18; 
-        let successBuffer = 2;
-
-        const timer = setInterval(() => {
-            if (waitTime > 0) {
-                countBox.innerText = c ? `👉 Click Ad & Wait ${waitTime}s` : `⏳ Ad Running... Reward in ${waitTime}s`;
-                waitTime--;
-            } else if (successBuffer > 0) {
-                if (successBuffer === 2) {
-                    updateDB(t, c); // ১৮ সেকেন্ড পর ডাটাবেসে টাকা যোগ হবে
-                    countBox.innerText = `✅ Success! Reward Added.`;
-                    countBox.style.color = "#10b981";
-                }
-                successBuffer--;
-            } else {
-                // মোট ২০ সেকেন্ড পর বাটন আনলক হবে
-                clearInterval(timer);
-                countBox.style.display = 'none';
-                isWaiting = false;
-            }
-        }, 1000);
-    }
-
-    function updateDB(t, c) {
-        db.collection("users").doc(uid).update({
-            balance: firebase.firestore.FieldValue.increment(settings.reward || 0),
-            viewProgress: c ? 0 : firebase.firestore.FieldValue.increment(1),
-            [t === '1' ? 'adCount1' : 'adCount2']: firebase.firestore.FieldValue.increment(1)
         });
     }
 
