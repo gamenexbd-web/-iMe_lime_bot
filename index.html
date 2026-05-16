@@ -21,10 +21,12 @@
         .menu-item { background: white; border-radius: 25px; padding: 25px 10px; text-align: center; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(255,0,92,0.02); }
         .menu-item i { font-size: 32px; color: #FF005C; margin-bottom: 12px; display: block; }
         .menu-item span { font-size: 14px; font-weight: 800; }
+        
         .page-overlay { position: absolute; inset: 0; background: #FFECF2; z-index: 100; padding: 25px; display: none; flex-direction: column; overflow-y: auto; }
         .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .back-btn { font-size: 18px; font-weight: 800; color: #333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .ov-balance-badge { background: white; color: #FF005C; padding: 6px 15px; border-radius: 50px; font-weight: 800; font-size: 13px; border: 1.5px solid #FF005C; }
+
         .task-option { background: white; padding: 22px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px; }
         .play-tag { font-weight: 800; color: white; background: #FF005C; padding: 6px 18px; border-radius: 50px; font-size: 12px; }
         .top-user-card { background: white; padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; border: 1px solid #fff; }
@@ -72,7 +74,7 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <!-- Folders with Global Balance Badge -->
+    <!-- Folders with Dynamic Balance -->
     <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="historyList"></div></div>
     <div id="topPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="topList"></div></div>
@@ -99,16 +101,17 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
+    // 🛑 টেলিগ্রাম সিকিউরিটি
     if (!tg.initData || !tg.initDataUnsafe.user) {
         document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;'>🛑 OPEN VIA TELEGRAM</div>";
-        throw new Error("Invalid User");
+        throw new Error("Unauthorized");
     }
 
     let uid = tg.initDataUnsafe.user.id.toString();
     let cbDeviceId = localStorage.getItem('cb_hw_token') || 'cb-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
     localStorage.setItem('cb_hw_token', cbDeviceId);
 
-    let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {}, adInterval;
+    let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {}, adWatchTime = 0;
 
     const fakeUsers = [
         {name: "Mohammad Rakib", balance: 145.20, referCount: 52, photo: "https://randomuser.me/api/portraits/men/32.jpg"},
@@ -223,44 +226,44 @@
         const old = document.getElementById('monetag-script'); if(old) old.remove();
         const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
         
+        let startMoment = 0;
         s.onload = () => { 
             if(window['show_'+zone]) {
+                startMoment = Date.now();
+                isWaiting = true;
+                showTimer(); // UI টাইমার শুরু
                 window['show_'+zone]().then(() => {
-                    // বিজ্ঞাপন প্রদর্শিত হলে ১৮ সেকেন্ডের টাইমার শুরু
-                    startAdWatcher(t, c);
+                    // বিজ্ঞাপন বন্ধ হওয়ার পর চেক
+                    let duration = (Date.now() - startMoment) / 1000;
+                    if (duration >= 18) {
+                        updateDB(t, c);
+                        alert("Reward Added! ✅");
+                    } else {
+                        alert("Closed too early! No reward. ❌");
+                    }
+                    isWaiting = false;
+                    document.getElementById('countdownBox').style.display = 'none';
                 }).catch(e => {
-                    alert("Ad closed too early or blocked! No reward.");
-                    resetAdState();
+                    isWaiting = false;
+                    document.getElementById('countdownBox').style.display = 'none';
                 });
             }
         };
     }
 
-    function startAdWatcher(t, c) {
-        isWaiting = true;
-        const countBox = document.getElementById('countdownBox'); 
+    function showTimer() {
+        const countBox = document.getElementById('countdownBox');
         countBox.style.display = 'block';
         let timeLeft = 18;
-
-        adInterval = setInterval(() => {
-            if (timeLeft > 0) {
-                countBox.innerText = `⏳ Watching Ad: ${timeLeft}s (Don't close)`;
+        const interval = setInterval(() => {
+            if (timeLeft > 0 && isWaiting) {
+                countBox.innerText = `⏳ Ad Running: ${timeLeft}s (Don't close)`;
                 timeLeft--;
             } else {
-                // ১৮ সেকেন্ড পূর্ণ হলে টাকা যোগ এবং বাটন আনলক
-                clearInterval(adInterval);
-                updateDB(t, c);
-                countBox.style.display = 'none';
-                isWaiting = false; // জিরো কুলডাউন
-                alert("৳" + settings.reward + " Reward Added! ✅");
+                clearInterval(interval);
+                if (isWaiting) countBox.innerText = `✅ Time complete! Now close the ad.`;
             }
         }, 1000);
-    }
-
-    function resetAdState() {
-        clearInterval(adInterval);
-        isWaiting = false;
-        document.getElementById('countdownBox').style.display = 'none';
     }
 
     function updateDB(t, c) {
