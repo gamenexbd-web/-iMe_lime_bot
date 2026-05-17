@@ -4,102 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title id="pageTitle">Bikash Pay</title>
+    
+    <!-- External Resources -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
         :root {
             --primary: #FF005C;
             --accent: #E91E63;
-            --bg: #FFECF2;
+            --bg-light: #FFECF2;
             --white: #ffffff;
-            --glass: rgba(255, 255, 255, 0.1);
+            --text-dark: #1a1a2e;
+            --text-muted: #636e72;
+            --error: #ff4757;
+            --success: #10b981;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         
         body { background: var(--primary); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
         
-        .app-container { width: 100%; max-width: 414px; height: 95vh; background: var(--bg); border-radius: 40px; position: relative; overflow: hidden; display: none; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        /* Layout Container */
+        .app-container { 
+            width: 100%; 
+            max-width: 414px; 
+            height: 95vh; 
+            background: var(--bg-light); 
+            border-radius: 40px; 
+            position: relative; 
+            overflow: hidden; 
+            display: none; 
+            flex-direction: column; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
+        }
         
-        /* Header & Balance */
+        /* Headers */
         header { padding: 25px; display: flex; justify-content: space-between; align-items: center; }
         .bdt-badge { background: var(--accent); color: white; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3); }
         
         .profile-section { background: white; margin: 0 20px; padding: 15px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
         .wallet-card { background: linear-gradient(135deg, var(--primary), #C2185B); color: white; padding: 10px 20px; border-radius: 15px; text-align: center; }
         
-        /* Menu Grid */
+        /* Grid Menu */
         .menu-grid { flex: 1; padding: 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; overflow-y: auto; }
         .menu-item { background: white; border-radius: 25px; padding: 25px 10px; text-align: center; cursor: pointer; transition: 0.3s; }
         .menu-item i { font-size: 32px; color: var(--primary); margin-bottom: 12px; display: block; }
-        .menu-item span { font-size: 14px; font-weight: 800; color: #333; }
+        .menu-item span { font-size: 14px; font-weight: 800; color: var(--text-dark); }
         .menu-item:active { transform: scale(0.95); }
 
-        /* Overlays */
-        .page-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 100; padding: 25px; display: none; flex-direction: column; overflow-y: auto; }
+        /* Overlay Pages Header */
+        .page-overlay { position: absolute; inset: 0; background: var(--bg-light); z-index: 100; padding: 25px; display: none; flex-direction: column; overflow-y: auto; }
         .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .back-btn { font-size: 18px; font-weight: 800; color: #333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .ov-balance-badge { background: white; color: var(--primary); padding: 6px 15px; border-radius: 50px; font-weight: 800; font-size: 13px; border: 1.5px solid var(--primary); }
 
-        /* Task Cards */
-        .task-option { background: white; padding: 22px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px; border: 1px solid #fff; }
-        .play-tag { font-weight: 800; color: white; background: var(--primary); padding: 6px 18px; border-radius: 50px; font-size: 12px; }
-
-        /* History & Lists */
-        .history-card { background: white; padding: 18px; border-radius: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
-        .status-badge { font-size: 10px; padding: 5px 12px; border-radius: 50px; font-weight: 800; color: white; }
-        .top-user-card { background: white; padding: 12px 15px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
-        .user-thumb { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--primary); object-fit: cover; }
-        .rank-box { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; background: #f0f0f0; }
-        .rank-1 { background: #FFD700; color: white; }
-
-        /* Modern Guard & Block UI */
+        /* Modern Guard Screen */
         #blockScreen { position: fixed; inset: 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; }
-        .block-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); padding: 40px 30px; border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 340px; }
-        .block-icon { width: 85px; height: 80px; background: #ff4757; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; margin: 0 auto 20px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); } }
+        .block-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); padding: 40px 30px; border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 320px; }
+        .block-icon { width: 90px; height: 90px; background: var(--error); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 20px; animation: glow 1.5s infinite; }
+        @keyframes glow { 0% { box-shadow: 0 0 5px var(--error); } 50% { box-shadow: 0 0 25px var(--error); } 100% { box-shadow: 0 0 5px var(--error); } }
 
-        /* Click Modal UI */
-        #clickModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        /* Modern Click Modal */
+        #clickModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 10000; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modern-modal { background: white; width: 100%; max-width: 340px; border-radius: 40px; padding: 35px 25px; text-align: center; animation: modalUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes modalUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-icon { width: 70px; height: 70px; background: var(--primary); color: white; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 20px; transform: rotate(-10deg); }
+        .modal-icon { width: 70px; height: 70px; background: var(--primary); color: white; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 20px; transform: rotate(-10deg); box-shadow: 0 10px 25px rgba(255, 0, 92, 0.3); }
 
-        /* Inputs & Buttons */
-        input, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; font-weight: 600; }
-        .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: 800; cursor: pointer; }
+        /* Task & History Cards */
+        .task-option { background: white; padding: 22px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px; border: 1px solid #fff; }
+        .play-tag { font-weight: 800; color: white; background: var(--primary); padding: 6px 18px; border-radius: 50px; font-size: 12px; }
+        .history-card { background: white; padding: 18px; border-radius: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--primary); }
+        .status-badge { font-size: 10px; padding: 5px 12px; border-radius: 50px; font-weight: 800; color: white; }
         
         #countdownBox { font-size: 14px; color: var(--primary); font-weight: 800; text-align: center; margin-top: 15px; padding: 15px; background: white; border-radius: 15px; border: 2px solid var(--primary); display: none; }
         
-        /* Loader */
-        #loadingScreen { position: fixed; inset: 0; background: var(--bg); z-index: 8888; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; color: var(--primary); }
+        /* Top User Styling */
+        .top-user-card { background: white; padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; border: 1px solid #fff; }
+        .rank-box { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; background: #f0f0f0; }
+        .rank-1 { background: #FFD700; color: #fff; }
+        .user-thumb { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--primary); object-fit: cover; }
+
+        /* Form Elements */
+        input, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; font-weight: 600; }
+        .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: 800; cursor: pointer; }
+        
+        /* Global Loader */
+        #loadingScreen { position: fixed; inset: 0; background: var(--bg-light); z-index: 8888; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; color: var(--primary); }
         .loader { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<!-- Loader Section -->
-<div id="loadingScreen">
-    <div class="loader"></div>
-    🛡️ Initializing Security...
-</div>
+<div id="loadingScreen"><div class="loader"></div>🛡️ Initializing Security Heartbeat...</div>
 
-<!-- Modern Security Guard Screen -->
+<!-- Modern Security Lock Screen -->
 <div id="blockScreen">
     <div class="block-card">
         <div class="block-icon"><i class="fa-solid fa-shield-halved"></i></div>
         <div style="font-size:22px; font-weight:800; color:#ff4757; margin-bottom:10px;">ACCESS DENIED</div>
         <p id="vpnNoticeText" style="color:#ced6e0; font-size:14px; line-height:1.6;"></p>
-        <button onclick="location.reload()" style="margin-top:25px; background:transparent; border:1px solid #ff4757; color:#ff4757; padding:10px 25px; border-radius:12px; font-size:12px; font-weight:800;">TRY AGAIN</button>
+        <button onclick="location.reload()" style="margin-top:25px; background:transparent; border:1px solid #ff4757; color:#ff4757; padding:10px 25px; border-radius:12px; font-size:12px; font-weight:800;">RECHECK CONNECTION</button>
     </div>
 </div>
 
-<!-- Modern Click Popup -->
+<!-- Modern Click Notice Popup -->
 <div id="clickModal">
     <div class="modern-modal">
         <div class="modal-icon"><i class="fa-solid fa-mouse-pointer"></i></div>
@@ -110,13 +124,13 @@
 </div>
 
 <div class="app-container" id="mainApp">
-    <!-- Main Header -->
+    <!-- UI Header -->
     <header>
         <div id="appNameHeader" style="font-weight: 800; color: #FF005C; font-size: 20px;">Bikash Pay</div>
         <div class="bdt-badge">৳ <span class="global-balance">0.00</span></div>
     </header>
     
-    <!-- User Info Section -->
+    <!-- User Profile Bar -->
     <div class="profile-section">
         <div style="display:flex; align-items:center; gap:12px;">
             <img src="" style="width:50px; height:50px; border-radius:12px; border:2px solid #FF005C;" id="uPic">
@@ -131,7 +145,7 @@
         </div>
     </div>
 
-    <!-- Main Navigation Menu -->
+    <!-- Navigation Menu -->
     <div class="menu-grid">
         <div class="menu-item" onclick="openPage('taskPage')"><i class="fa-solid fa-circle-play"></i><span>Start Task</span></div>
         <div class="menu-item" onclick="openPage('topPage')"><i class="fa-solid fa-crown"></i><span>Top User</span></div>
@@ -141,7 +155,7 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <!-- Page Overlays with Global Balance -->
+    <!-- Folders / Overlay Pages -->
     <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     
     <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="historyList"></div></div>
@@ -155,8 +169,9 @@
     <div id="taskPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('taskPage')"><i class="fa-solid fa-arrow-left"></i> Start Task</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div class="task-option" id="btnT1" onclick="handleAdClick('1')"><span style="font-weight:800">Task One</span><span class="play-tag">Play</span></div><div class="task-option" id="btnT2" onclick="handleAdClick('2')"><span style="font-weight:800">Task Two</span><span class="play-tag">Play</span></div><div id="countdownBox"></div></div>
 </div>
 
+<!-- Scripts Section -->
 <script>
-    // --- Configuration ---
+    // ⚙️ Initial Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDwb7L54loH0F6p7v-eaiiOFZte0jrkHX0",
       authDomain: "crytpo-boss.firebaseapp.com",
@@ -172,10 +187,10 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // --- Security Validation ---
+    // 🔒 Security Layer 1: Telegram Only
     if (!tg.initData || !tg.initDataUnsafe.user) {
-        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; text-align:center; padding:20px;'>🛑 OPEN VIA TELEGRAM</div>";
-        throw new Error("Unauthorized Access Detected.");
+        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; text-align:center; padding:20px;'>🛑 OPEN VIA TELEGRAM WEBAPP</div>";
+        throw new Error("Unauthorized Browser Session Blocked.");
     }
 
     let uid = tg.initDataUnsafe.user.id.toString();
@@ -184,7 +199,6 @@
     
     let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {};
 
-    // 5 Fixed Fake Users for Leaderboard
     const fakeUsers = [
         {name: "Mohammad Rakib", balance: 145.20, referCount: 52, photo: "https://randomuser.me/api/portraits/men/32.jpg"},
         {name: "Sriti Hasan", balance: 128.00, referCount: 38, photo: "https://randomuser.me/api/portraits/women/44.jpg"},
@@ -193,8 +207,8 @@
         {name: "Abdur Rahman", balance: 88.00, referCount: 21, photo: "https://randomuser.me/api/portraits/men/15.jpg"}
     ];
 
-    // 🛡️ Security Guard: Checks every 5 seconds for IP/Proxy changes
-    async function checkSecurity() {
+    // 🛡️ Security Layer 2: 5s Background Proxy Guard
+    async function checkSecurityHeartbeat() {
         try {
             const vSnap = await db.collection("settings").doc("vpn").get();
             if (vSnap.exists && vSnap.data().status === "ON") {
@@ -203,41 +217,49 @@
                 const match = cfText.match(/loc=([A-Z]{2})/);
                 if (match) {
                     const currentLoc = match[1];
-                    const allowedCountries = (vSnap.data().allowed || "").split(',').map(c => c.trim().toUpperCase());
+                    const allowedStr = vSnap.data().allowed || "";
+                    const allowedCountries = allowedStr.split(',').map(c => c.trim().toUpperCase());
                     if (!allowedCountries.includes(currentLoc)) {
-                        lockSystem(vSnap.data().notice); return;
+                        forceLock(vSnap.data().notice); return;
                     }
-                } else { lockSystem("Security Violation: Proxy/VPN Detected."); return; }
+                } else { forceLock("Security Guard: Insecure IP Detected."); return; }
             }
-            // Unlock and load
+            // If passed, show app
             document.getElementById('loadingScreen').style.display='none';
             document.getElementById('blockScreen').style.display='none';
             document.getElementById('mainApp').style.display='flex';
-            if(!userData.name) init();
-        } catch (e) { lockSystem("Security Handshake Failed."); }
+            if(!userData.name) initApplication(); 
+        } catch (e) { forceLock("System Guard: Security Handshake Failed."); }
     }
 
-    function lockSystem(msg) {
+    function forceLock(msg) {
         document.getElementById('mainApp').style.display='none';
         document.getElementById('loadingScreen').style.display='none';
         document.getElementById('blockScreen').style.display='flex';
         document.getElementById('vpnNoticeText').innerText = msg;
     }
 
-    setInterval(checkSecurity, 5000);
+    setInterval(checkSecurityHeartbeat, 5000);
 
-    // --- Main Logic ---
-    async function init() {
-        // App Name Sync
-        db.collection("settings").doc("general").onSnapshot(doc => { if(doc.exists) { document.getElementById('appNameHeader').innerText = doc.data().appName; document.getElementById('pageTitle').innerText = doc.data().appName; } });
-        
-        // Device Check
+    // 🚀 Application Logic
+    async function initApplication() {
+        // General Settings
+        db.collection("settings").doc("general").onSnapshot(doc => { 
+            if(doc.exists) { 
+                const name = doc.data().appName;
+                document.getElementById('appNameHeader').innerText = name;
+                document.getElementById('pageTitle').innerText = name;
+            } 
+        });
+
+        // Anti-Multi Account Check
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
-        let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
-        if(!isOwner) { lockSystem("One Account Per Device Policy Active."); return; }
+        let isOwner = true; 
+        devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
+        if(!isOwner) { forceLock("Security Policy: Only one account allowed per device."); return; }
 
-        // Settings Sync
-        db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data(); sync(); });
+        // Ad & Referral Config
+        db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data(); syncUI(); });
         db.collection("settings").doc("referral").onSnapshot(doc => { 
             refSet = doc.data() || {}; 
             let cleanBot = (refSet.botUser || "").replace('@', '');
@@ -249,52 +271,65 @@
         
         // Load Pay Methods
         db.collection("pay_methods").onSnapshot(snap => {
-            let h = '<option value="">Select Payment Method</option>'; snap.forEach(doc => { h += `<option value="${doc.data().name}">${doc.data().name}</option>`; });
+            let h = '<option value="">Select Payment Method</option>';
+            snap.forEach(doc => { h += `<option value="${doc.data().name}">${doc.data().name}</option>`; });
             document.getElementById('methodSelect').innerHTML = h;
         });
 
-        // User Data Sync
+        // User Profile Management
         const userRef = db.collection("users").doc(uid);
         userRef.get().then((doc) => {
-            if (doc.exists) { userRef.onSnapshot(s => { userData = s.data(); sync(); }); } 
-            else {
+            if (doc.exists) {
+                userRef.onSnapshot(s => { userData = s.data(); syncUI(); });
+            } else {
                 const startParam = tg.initDataUnsafe.start_param;
                 let inviterId = (startParam && startParam !== uid) ? startParam : null;
+                
                 const newUser = {
-                    name: tg.initDataUnsafe.user.first_name, photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
-                    balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: inviterId
+                    name: tg.initDataUnsafe.user.first_name, 
+                    photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
+                    balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, 
+                    lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: inviterId
                 };
+                
                 userRef.set(newUser).then(() => {
                     if (inviterId) {
                         db.collection("settings").doc("referral").get().then(rSnap => {
                             const bonus = rSnap.exists ? rSnap.data().bonus : 0;
-                            db.collection("users").doc(inviterId).update({ balance: firebase.firestore.FieldValue.increment(bonus), referCount: firebase.firestore.FieldValue.increment(1) });
+                            db.collection("users").doc(inviterId).update({
+                                balance: firebase.firestore.FieldValue.increment(bonus),
+                                referCount: firebase.firestore.FieldValue.increment(1)
+                            });
                         });
                     }
-                    userRef.onSnapshot(s => { userData = s.data(); sync(); });
+                    userRef.onSnapshot(s => { userData = s.data(); syncUI(); });
                 });
             }
         });
+
         setInterval(() => { if(uid) db.collection("users").doc(uid).update({ lastSeen: Date.now() }); }, 30000);
-        loadTop(); loadHistory();
+        loadLeaderboard(); loadWithdrawHistory();
     }
 
-    function sync() {
+    function syncUI() {
         if(userData && settings) {
             document.querySelectorAll('.global-balance').forEach(el => el.innerText = (userData.balance || 0).toFixed(2));
             document.getElementById('uLimits').innerText = `T1: ${userData.adCount1||0}/${settings.limit1||0} | T2: ${userData.adCount2||0}/${settings.limit2||0}`;
-            document.getElementById('uName').innerText = userData.name; document.getElementById('uPic').src = userData.photo;
-            document.getElementById('pName').innerText = userData.name; document.getElementById('pId').innerText = "ID: " + uid; document.getElementById('pPic').src = userData.photo;
+            document.getElementById('uName').innerText = userData.name;
+            document.getElementById('uPic').src = userData.photo;
+            document.getElementById('pName').innerText = userData.name; 
+            document.getElementById('pPic').src = userData.photo;
+            document.getElementById('pId').innerText = "ID: " + uid;
             document.getElementById('st1').innerText = `${userData.adCount1||0}/${settings.limit1||0}`;
             document.getElementById('st2').innerText = `${userData.adCount2||0}/${settings.limit2||0}`;
             document.getElementById('sRef').innerText = userData.referCount || 0;
         }
     }
 
-    // --- Task Logic ---
+    // 📺 Task & Ad System
     function handleAdClick(t) {
         if(isWaiting) return;
-        if(settings.adStatus === "OFF") return alert("Admin has temporarily disabled tasks.");
+        if(settings.adStatus === "OFF") return alert("Admin has turned off Tasks for now.");
         
         activeT = t;
         const progress = t === '1' ? (userData.viewProgress1 || 0) : (userData.viewProgress2 || 0);
@@ -302,65 +337,99 @@
         const count = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
         const limit = t === '1' ? settings.limit1 : settings.limit2;
 
-        if(count >= limit) return alert("Daily limit reached for this task!");
+        if(count >= limit) return alert("Daily task limit reached!");
 
         if(progress >= clickLimit) { 
-            document.getElementById('modalNotice').innerText = settings.clickNotice; document.getElementById('clickModal').style.display = 'flex'; 
-            document.getElementById('modalBtn').onclick = () => { document.getElementById('clickModal').style.display = 'none'; runAd(t, true); };
-        } else { runAd(t, false); }
+            document.getElementById('modalNotice').innerText = settings.clickNotice; 
+            document.getElementById('clickModal').style.display = 'flex'; 
+            document.getElementById('modalBtn').onclick = () => {
+                document.getElementById('clickModal').style.display = 'none';
+                runMonetagAd(t, true);
+            };
+        } else { 
+            runMonetagAd(t, false); 
+        }
     }
 
-    function runAd(t, c) {
+    function runMonetagAd(t, isClick) {
         const zone = t === '1' ? settings.zone1 : settings.zone2;
         const old = document.getElementById('monetag-script'); if(old) old.remove();
-        const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
+        const s = document.createElement('script'); 
+        s.id = 'monetag-script'; 
+        s.src = '//libtl.com/sdk.js'; 
+        s.setAttribute('data-zone', zone); 
+        s.setAttribute('data-sdk', 'show_' + zone); 
+        document.head.appendChild(s);
         
-        let startMoment = 0;
+        let startTime = 0;
         s.onload = () => { 
             if(window['show_'+zone]) {
-                startMoment = Date.now(); isWaiting = true; startTimerUI();
+                startTime = Date.now();
+                isWaiting = true;
+                startTimerUI();
                 window['show_'+zone]().then(() => {
-                    let watched = (Date.now() - startMoment) / 1000;
-                    if (watched >= 15) { 
-                        updateDB(t, c); alert("৳" + (t==='1'?settings.reward1:settings.reward2) + " Reward Added! ✅"); 
-                    } else { alert("Ad closed too early! Reward cancelled. ❌"); }
-                    isWaiting = false; document.getElementById('countdownBox').style.display = 'none';
-                }).catch(() => { isWaiting = false; document.getElementById('countdownBox').style.display = 'none'; });
+                    let watched = (Date.now() - startTime) / 1000;
+                    if (watched >= 15) {
+                        updateRewardData(t, isClick);
+                        alert("৳" + (t==='1'?settings.reward1:settings.reward2) + " Reward Added! ✅");
+                    } else {
+                        alert("Closed too early! No reward added. ❌");
+                    }
+                    isWaiting = false;
+                    document.getElementById('countdownBox').style.display = 'none';
+                }).catch(e => {
+                    isWaiting = false;
+                    document.getElementById('countdownBox').style.display = 'none';
+                });
             }
         };
     }
 
     function startTimerUI() {
-        const countBox = document.getElementById('countdownBox'); countBox.style.display = 'block';
+        const countBox = document.getElementById('countdownBox');
+        countBox.style.display = 'block';
         let left = 15;
         const interval = setInterval(() => {
-            if (left > 0 && isWaiting) { countBox.innerText = `⏳ Ad Running: ${left}s`; left--; } 
-            else { clearInterval(interval); if (isWaiting) countBox.innerText = `✅ Time Complete! You can close now.`; }
+            if (left > 0 && isWaiting) {
+                countBox.innerText = `⏳ Watching Ad: ${left}s`;
+                left--;
+            } else {
+                clearInterval(interval);
+                if (isWaiting) countBox.innerText = `✅ Success! You can close ad now.`;
+            }
         }, 1000);
     }
 
-    function updateDB(t, c) {
+    function updateRewardData(t, c) {
         const progressField = t === '1' ? 'viewProgress1' : 'viewProgress2';
         const countField = t === '1' ? 'adCount1' : 'adCount2';
         const reward = t === '1' ? (settings.reward1 || 0) : (settings.reward2 || 0);
-        db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(reward), [progressField]: c ? 0 : firebase.firestore.FieldValue.increment(1), [countField]: firebase.firestore.FieldValue.increment(1) });
+        db.collection("users").doc(uid).update({
+            balance: firebase.firestore.FieldValue.increment(reward),
+            [progressField]: c ? 0 : firebase.firestore.FieldValue.increment(1),
+            [countField]: firebase.firestore.FieldValue.increment(1)
+        });
     }
 
-    // --- Withdrawal & UI ---
+    // 💸 Withdrawal System
     function submitWithdraw() {
         const amt = parseFloat(document.getElementById('payAmt').value);
         const acc = document.getElementById('payAcc').value;
         const met = document.getElementById('methodSelect').value;
-        if(!amt || !acc || !met) return alert("Fill all fields!");
+        if(!amt || !acc || !met) return alert("Please fill all details.");
         if(amt < wSet.min) return alert("Minimum withdrawal is ৳" + wSet.min);
-        if(userData.balance < amt) return alert("Insufficient balance!");
-        db.collection("withdrawals").add({ uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now() }).then(() => {
+        if(userData.balance < amt) return alert("Insufficient account balance.");
+        
+        db.collection("withdrawals").add({
+            uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now()
+        }).then(() => {
             db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            alert("Withdrawal Request Submitted! ✅"); closePage('withdrawPage');
+            alert("Request Submitted Successfully! ✅"); 
+            closePage('withdrawPage');
         });
     }
 
-    function loadHistory() {
+    function loadWithdrawHistory() {
         db.collection("withdrawals").where("uid","==",uid).onSnapshot(snap => {
             let h = ""; let list = []; snap.forEach(doc => list.push(doc.data()));
             list.sort((a,b) => b.timestamp - a.timestamp);
@@ -368,11 +437,11 @@
                 const c = d.status === "Approved" ? "#10b981" : d.status === "Rejected" ? "#ef4444" : "#f59e0b";
                 h += `<div class="history-card"><div><p style="font-weight:800; font-size:14px;">৳${d.amount} - ${d.method}</p><p style="font-size:10px; color:grey;">To: ${d.account}</p></div><span class="status-badge" style="background:${c}">${d.status}</span></div>`;
             });
-            document.getElementById('historyList').innerHTML = h || "<p style='text-align:center; color:grey; padding-top:20px'>No history found.</p>";
+            document.getElementById('historyList').innerHTML = h || "<p style='text-align:center; color:grey; padding-top:20px'>No history available.</p>";
         });
     }
 
-    function loadTop() {
+    function loadLeaderboard() {
         db.collection("users").orderBy("balance", "desc").limit(10).onSnapshot(snap => {
             let real = []; snap.forEach(doc => real.push(doc.data()));
             const all = [...real, ...fakeUsers].sort((a,b) => b.balance - a.balance);
@@ -384,11 +453,13 @@
         });
     }
 
+    // 🛠️ Navigation Utils
     function openPage(id) { document.getElementById(id).style.display = 'flex'; }
     function closePage(id) { document.getElementById(id).style.display = 'none'; }
-    function copyRef() { const refLink = document.getElementById('refLink'); refLink.select(); document.execCommand('copy'); alert("Refer Link Copied!"); }
-    
-    checkSecurity();
+    function copyRef() { const refLink = document.getElementById('refLink'); refLink.select(); document.execCommand('copy'); alert("Referral Link Copied!"); }
+
+    // Start Security Check
+    checkSecurityHeartbeat();
 </script>
 </body>
 </html>
