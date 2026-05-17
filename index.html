@@ -41,7 +41,7 @@
         .block-icon { width: 80px; height: 80px; background: #ff4d4d; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(255, 77, 77, 0.4); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        /* Ultra Modern Click Modal */
+        /* Modern Click Modal */
         #clickModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 10000; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modern-modal { background: white; width: 100%; max-width: 340px; border-radius: 40px; padding: 35px 25px; text-align: center; animation: modalUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes modalUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -112,6 +112,7 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
+    <!-- Inner Pages -->
     <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="historyList"></div></div>
     <div id="topPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="topList"></div></div>
@@ -136,10 +137,10 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // 🛑 টেলিগ্রাম সিকিউরিটি
+    // 🛑 টেলিগ্রাম ইউজার চেক
     if (!tg.initData || !tg.initDataUnsafe.user) {
-        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; text-align:center; padding:20px;'>🛑 OPEN VIA TELEGRAM</div>";
-        throw new Error("Unauthorized Access");
+        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;'>🛑 OPEN VIA TELEGRAM</div>";
+        throw new Error("Unauthorized");
     }
 
     let uid = tg.initDataUnsafe.user.id.toString();
@@ -188,13 +189,7 @@
         db.collection("settings").doc("general").onSnapshot(doc => { if(doc.exists) { document.getElementById('appNameHeader').innerText = doc.data().appName || "Bikash Pay"; document.getElementById('pageTitle').innerText = doc.data().appName || "Bikash Pay"; } });
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
         let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
-        if(!isOwner) { 
-            document.getElementById('mainApp').style.display='none'; 
-            document.getElementById('blockScreen').style.display='flex'; 
-            document.getElementById('blockTitle').innerText = "DEVICE LOCKED!"; 
-            document.getElementById('vpnNoticeText').innerText = "Only one account per device is allowed.";
-            return; 
-        }
+        if(!isOwner) { document.getElementById('mainApp').style.display='none'; document.getElementById('blockScreen').style.display='flex'; document.getElementById('blockTitle').innerText = "DEVICE LOCKED!"; return; }
 
         db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data(); sync(); });
         db.collection("settings").doc("referral").onSnapshot(doc => { 
@@ -252,7 +247,7 @@
 
     function handleAdClick(t) {
         if(isWaiting) return;
-        if(settings.adStatus === "OFF") return alert("Task is currently turned OFF by Admin.");
+        if(settings.adStatus === "OFF") return alert("Task is currently turned OFF.");
         activeT = t;
         const count = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
         const limit = t === '1' ? settings.limit1 : settings.limit2;
@@ -307,7 +302,7 @@
                 timeLeft--;
             } else {
                 clearInterval(interval);
-                if (isWaiting) countBox.innerText = `✅ Time Complete! Close ad.`;
+                if (isWaiting) countBox.innerText = `✅ Time Over! Close ad.`;
             }
         }, 1000);
     }
