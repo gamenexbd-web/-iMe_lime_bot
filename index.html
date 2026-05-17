@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title id="pageTitle">Bikash Pay</title>
     
-    <!-- Libraries -->
+    <!-- Premium Resources -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -17,18 +17,19 @@
         :root {
             --primary: #FF005C;
             --accent: #E91E63;
-            --bg-page: #FFECF2;
+            --bg-color: #FFECF2;
             --white: #ffffff;
             --danger: #ff4757;
-            --success: #10b981;
+            --dark-deep: #0f0c29;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         
         body { background: var(--primary); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
         
+        /* Main App Container */
         .app-container { 
-            width: 100%; max-width: 414px; height: 95vh; background: var(--bg-page); 
+            width: 100%; max-width: 414px; height: 95vh; background: var(--bg-color); 
             border-radius: 40px; position: relative; overflow: hidden; 
             display: none; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
         }
@@ -43,22 +44,33 @@
         .menu-item { background: white; border-radius: 25px; padding: 25px 10px; text-align: center; cursor: pointer; transition: 0.3s; }
         .menu-item i { font-size: 32px; color: var(--primary); margin-bottom: 12px; display: block; }
         .menu-item span { font-size: 14px; font-weight: 800; color: #333; }
-        .menu-item:active { transform: scale(0.92); background: #fff0f5; }
+        .menu-item:active { transform: scale(0.95); }
 
-        .page-overlay { position: absolute; inset: 0; background: var(--bg-page); z-index: 100; padding: 25px; display: none; flex-direction: column; overflow-y: auto; }
+        .page-overlay { position: absolute; inset: 0; background: var(--bg-color); z-index: 100; padding: 25px; display: none; flex-direction: column; overflow-y: auto; }
         .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .back-btn { font-size: 18px; font-weight: 800; color: #333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        .ov-balance-badge { background: white; color: var(--primary); padding: 6px 15px; border-radius: 50px; font-weight: 800; font-size: 13px; border: 1.5px solid var(--primary); }
+        .ov-balance-badge { background: white; color: var(--primary); padding: 6px 15px; border-radius: 50px; font-weight: 800; font-size: 13px; border: 1.5px solid #FF005C; }
 
-        #blockScreen { position: fixed; inset: 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; }
-        .block-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); padding: 40px 30px; border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 320px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-        .block-icon { width: 90px; height: 90px; background: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 20px; animation: glow 1.5s infinite; }
+        /* 🚀 Modern Telegram Only Screen */
+        .tg-block-screen { position: fixed; inset: 0; background: var(--dark-deep); z-index: 100000; display: flex; justify-content: center; align-items: center; padding: 30px; text-align: center; color: white; }
+        .tg-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); padding: 50px 30px; border-radius: 45px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 340px; box-shadow: 0 40px 100px rgba(0,0,0,0.8); }
+        .tg-icon { width: 100px; height: 100px; background: linear-gradient(135deg, #0088cc, #00aaff); border-radius: 35px; display: flex; align-items: center; justify-content: center; font-size: 50px; margin: 0 auto 30px; transform: rotate(-10deg); animation: floating 3s ease-in-out infinite; box-shadow: 0 15px 35px rgba(0, 136, 204, 0.4); }
+        @keyframes floating { 0%, 100% { transform: translateY(0) rotate(-10deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+        .tg-h { font-size: 26px; font-weight: 900; margin-bottom: 15px; letter-spacing: -1px; }
+        .tg-p { font-size: 15px; opacity: 0.7; line-height: 1.6; margin-bottom: 35px; font-weight: 400; }
+        .tg-btn { background: #0088cc; color: white; border: none; padding: 18px 40px; border-radius: 20px; font-weight: 800; font-size: 16px; width: 100%; cursor: pointer; box-shadow: 0 10px 20px rgba(0, 136, 204, 0.2); }
+
+        /* Modern Guard / Block UI */
+        #blockScreen { position: fixed; inset: 0; background: rgba(10, 10, 30, 0.98); backdrop-filter: blur(25px); color: white; z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; }
+        .block-card { background: rgba(255, 255, 255, 0.05); padding: 40px 30px; border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 320px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+        .block-icon { width: 90px; height: 90px; background: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 25px; animation: glow 1.5s infinite; }
         @keyframes glow { 0% { box-shadow: 0 0 5px var(--danger); } 50% { box-shadow: 0 0 25px var(--danger); } 100% { box-shadow: 0 0 5px var(--danger); } }
 
-        #clickModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10000; display: none; justify-content: center; align-items: center; padding: 20px; }
-        .modern-modal { background: white; width: 100%; max-width: 340px; border-radius: 40px; padding: 35px 25px; text-align: center; animation: modalUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes modalUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-icon { width: 70px; height: 70px; background: var(--primary); color: white; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 20px; transform: rotate(-10deg); box-shadow: 0 10px 25px rgba(255, 0, 92, 0.3); }
+        /* Modern Modal UI */
+        #clickModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 10000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modern-modal { background: white; width: 100%; max-width: 340px; border-radius: 40px; padding: 40px 25px; text-align: center; animation: modal-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes modal-up { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-icon { width: 75px; height: 75px; background: var(--primary); color: white; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 25px; transform: rotate(-10deg); box-shadow: 0 12px 30px rgba(255, 0, 92, 0.3); }
 
         .task-option { background: white; padding: 22px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px; border: 1px solid #fff; transition: 0.3s; }
         .play-tag { font-weight: 800; color: white; background: var(--primary); padding: 6px 18px; border-radius: 50px; font-size: 12px; }
@@ -66,32 +78,41 @@
         .status-badge { font-size: 10px; padding: 5px 12px; border-radius: 50px; font-weight: 800; color: white; }
         #countdownBox { font-size: 14px; color: var(--primary); font-weight: 800; text-align: center; margin-top: 15px; padding: 15px; background: white; border-radius: 15px; border: 2px solid var(--primary); display: none; }
         
-        #loadingScreen { position: fixed; inset: 0; background: var(--bg-page); z-index: 8888; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; color: var(--primary); }
+        #loadingScreen { position: fixed; inset: 0; background: var(--bg-color); z-index: 8888; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; color: var(--primary); }
         .loader { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         .top-user-card { background: white; padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
         .user-thumb { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--primary); object-fit: cover; }
-        .rank-box { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; background: #f0f0f0; }
-        .rank-1 { background: #FFD700; color: white; }
-
         input, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; font-weight: 600; }
         .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: 800; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="loadingScreen"><div class="loader"></div>🛡️ Initializing Guard...</div>
+<div id="loadingScreen"><div class="loader"></div>🛡️ Initializing Security...</div>
 
-<div id="blockScreen">
-    <div class="block-card">
-        <div class="block-icon"><i class="fa-solid fa-shield-halved"></i></div>
-        <div style="font-size:22px; font-weight:800; color:#ff4757; margin-bottom:10px;">ACCESS DENIED</div>
-        <p id="vpnNoticeText" style="color:#ced6e0; font-size:14px; line-height:1.6;"></p>
-        <button onclick="location.reload()" style="margin-top:25px; background:transparent; border:1px solid #ff4757; color:#ff4757; padding:10px 25px; border-radius:12px; font-size:12px; font-weight:800;">RECHECK</button>
+<!-- 🛑 Modern Telegram Only Screen -->
+<div id="tgOnlyScreen" class="tg-block-screen" style="display:none;">
+    <div class="tg-card">
+        <div class="tg-icon"><i class="fa-brands fa-telegram"></i></div>
+        <div class="tg-h">TELEGRAM ONLY</div>
+        <p class="tg-p">This premium application is designed to run exclusively within the Telegram ecosystem for maximum security.</p>
+        <button class="tg-btn" onclick="location.reload()">OPEN IN TELEGRAM</button>
     </div>
 </div>
 
+<!-- Modern Security Guard Screen (VPN/Proxy) -->
+<div id="blockScreen">
+    <div class="block-card">
+        <div class="block-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <div style="font-size:22px; font-weight:800; color:#ff4757; margin-bottom:10px;">GUARD ACTIVE</div>
+        <p id="vpnNoticeText" style="color:#ced6e0; font-size:14px; line-height:1.6;"></p>
+        <button onclick="location.reload()" style="margin-top:25px; background:transparent; border:1px solid #ff4757; color:#ff4757; padding:10px 25px; border-radius:12px; font-size:12px; font-weight:800;">RECHECK CONNECTION</button>
+    </div>
+</div>
+
+<!-- Modern Click Modal -->
 <div id="clickModal">
     <div class="modern-modal">
         <div class="modal-icon"><i class="fa-solid fa-mouse-pointer"></i></div>
@@ -109,7 +130,7 @@
     
     <div class="profile-section">
         <div style="display:flex; align-items:center; gap:12px;"><img src="" style="width:50px; height:50px; border-radius:12px; border:2px solid #FF005C;" id="uPic"><div><div style="font-weight: 800; font-size: 16px;" id="uName">User</div><div id="uLimits" style="font-size: 10px; color: #FF005C; font-weight: bold;">Syncing...</div></div></div>
-        <div class="wallet-card"><small>Wallet Balance</small><div>৳ <span class="global-balance">0.00</span></div></div>
+        <div class="wallet-card"><small>Wallet</small><div>৳ <span class="global-balance">0.00</span></div></div>
     </div>
 
     <div class="menu-grid">
@@ -121,11 +142,11 @@
         <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <!-- Inner Pages -->
-    <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
+    <!-- Inner Pages with Global Balance Header -->
+    <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button onclick="submitWithdraw()" class="btn-main">Submit Request</button><button style="background: #6366f1; color:white; border:none; padding:15px; width:100%; border-radius:15px; font-weight:800; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="historyList"></div></div>
     <div id="topPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="topList"></div></div>
-    <div id="profilePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> My Stats</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white;"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1 Limit: <span id="st1" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2 Limit: <span id="st2" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Total Refers: <span id="sRef" style="color:#FF005C">0</span></p></div></div>
+    <div id="profilePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> Stats</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white;"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1 Limit: <span id="st1" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2 Limit: <span id="st2" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Total Refers: <span id="sRef" style="color:#FF005C">0</span></p></div></div>
     <div id="invitePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('invitePage')"><i class="fa-solid fa-arrow-left"></i> Invite</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:30px; border-radius:30px; text-align:center;"><h3 style="font-weight:800; color:#333;">Refer & Earn ৳<span id="refAmt">0</span></h3><input type="text" id="refLink" readonly style="width:100%; background:#f0f0f0; border:1px dashed #FF005C; padding:12px; border-radius:12px; margin-top:20px; font-size:11px; text-align:center;"><button onclick="copyRef()" class="btn-main" style="margin-top:15px;">Copy Link</button></div></div>
     <div id="taskPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('taskPage')"><i class="fa-solid fa-arrow-left"></i> Start Task</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div class="task-option" id="btnT1" onclick="handleAdClick('1')"><span style="font-weight:800">Task One</span><span class="play-tag">Play</span></div><div class="task-option" id="btnT2" onclick="handleAdClick('2')"><span style="font-weight:800">Task Two</span><span class="play-tag">Play</span></div><div id="countdownBox"></div></div>
 </div>
@@ -146,9 +167,11 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
+    // 🛑 টেলিগ্রাম অনলি ইউনিক গার্ড
     if (!tg.initData || !tg.initDataUnsafe.user) {
-        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; text-align:center; padding:20px;'>🛑 OPEN VIA TELEGRAM</div>";
-        throw new Error("Unauthorized");
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('tgOnlyScreen').style.display = 'flex';
+        throw new Error("Telegram Handshake Failed.");
     }
 
     let uid = tg.initDataUnsafe.user.id.toString();
@@ -164,6 +187,7 @@
         {name: "Abdur Rahman", balance: 88.00, referCount: 21, photo: "https://randomuser.me/api/portraits/men/15.jpg"}
     ];
 
+    // 🛡️ ৫ সেকেন্ড সিকিউরিটি হার্টবিট (Background Check)
     async function checkSecurity() {
         try {
             const vSnap = await db.collection("settings").doc("vpn").get();
@@ -199,7 +223,7 @@
         db.collection("settings").doc("general").onSnapshot(doc => { if(doc.exists) { document.getElementById('appNameHeader').innerText = doc.data().appName; document.getElementById('pageTitle').innerText = doc.data().appName; } });
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
         let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
-        if(!isOwner) { lockSystem("Device Locked. One account per device."); return; }
+        if(!isOwner) { lockSystem("Device Locked. One account per device policy."); return; }
 
         db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data(); sync(); });
         db.collection("settings").doc("referral").onSnapshot(doc => { 
@@ -220,17 +244,15 @@
         userRef.get().then((doc) => {
             if (doc.exists) { userRef.onSnapshot(s => { userData = s.data(); sync(); }); } 
             else {
-                const startParam = tg.initDataUnsafe.start_param;
-                let inviterId = (startParam && startParam !== uid) ? startParam : null;
                 const newUser = {
                     name: tg.initDataUnsafe.user.first_name, photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
-                    balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: inviterId
+                    balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: tg.initDataUnsafe.start_param || null
                 };
                 userRef.set(newUser).then(() => {
-                    if (inviterId) {
+                    if (newUser.referredBy) {
                         db.collection("settings").doc("referral").get().then(rSnap => {
                             const bonus = rSnap.exists ? rSnap.data().bonus : 0;
-                            db.collection("users").doc(inviterId).update({ balance: firebase.firestore.FieldValue.increment(bonus), referCount: firebase.firestore.FieldValue.increment(1) });
+                            db.collection("users").doc(newUser.referredBy).update({ balance: firebase.firestore.FieldValue.increment(bonus), referCount: firebase.firestore.FieldValue.increment(1) });
                         });
                     }
                     userRef.onSnapshot(s => { userData = s.data(); sync(); });
@@ -255,17 +277,13 @@
 
     function handleAdClick(t) {
         if(isWaiting) return;
-        if(settings.adStatus === "OFF") return alert("Task is currently OFF by Admin.");
+        if(settings.adStatus === "OFF") return alert("Tasks are currently disabled.");
         activeT = t;
-        
-        // ১. ডেইলি লিমিট চেক
-        const dailyCount = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
-        const dailyLimit = t === '1' ? settings.limit1 : settings.limit2;
-        if(dailyCount >= dailyLimit) return alert("Your daily limit is over!");
-
-        // ২. ক্লিক নোটিশ প্রগ্রেস চেক
         const progress = t === '1' ? (userData.viewProgress1 || 0) : (userData.viewProgress2 || 0);
-        const clickLimit = t === '1' ? settings.clickAfter1 : settings.clickAfter2;
+        const clickLimit = t === '1' ? (settings.clickAfter1 || 3) : (settings.clickAfter2 || 3);
+        const count = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
+        const limit = t === '1' ? settings.limit1 : settings.limit2;
+        if(count >= limit) return alert("Task daily limit reached!");
 
         if(progress >= clickLimit) { 
             document.getElementById('modalNotice').innerText = settings.clickNotice; 
@@ -276,7 +294,7 @@
         }
     }
 
-    function runAd(t, isClickTask) {
+    function runAd(t, c) {
         const zone = t === '1' ? settings.zone1 : settings.zone2;
         const old = document.getElementById('monetag-script'); if(old) old.remove();
         const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
@@ -285,9 +303,8 @@
             if(window['show_'+zone]) {
                 startMoment = Date.now(); isWaiting = true; showTimer();
                 window['show_'+zone]().then(() => {
-                    if ((Date.now() - startMoment) / 1000 >= 15) { 
-                        updateRewardDB(t, isClickTask); alert("Reward Added! ✅"); 
-                    } else { alert("Ad closed early! No reward. ❌"); }
+                    if ((Date.now() - startMoment) / 1000 >= 15) { updateDB(t, c); alert("Reward Added! ✅"); } 
+                    else { alert("Closed early! No reward. ❌"); }
                     isWaiting = false; document.getElementById('countdownBox').style.display = 'none';
                 }).catch(() => { isWaiting = false; document.getElementById('countdownBox').style.display = 'none'; });
             }
@@ -303,17 +320,11 @@
         }, 1000);
     }
 
-    function updateRewardDB(t, isClick) {
+    function updateDB(t, c) {
         const progressField = t === '1' ? 'viewProgress1' : 'viewProgress2';
         const countField = t === '1' ? 'adCount1' : 'adCount2';
         const reward = t === '1' ? (settings.reward1 || 0) : (settings.reward2 || 0);
-        
-        // 🔄 মেইন ফিক্স: যদি ক্লিকের অ্যাড হয় তবে প্রগ্রেস ০ হবে, না হলে ১ বাড়বে।
-        db.collection("users").doc(uid).update({ 
-            balance: firebase.firestore.FieldValue.increment(reward), 
-            [progressField]: isClick ? 0 : firebase.firestore.FieldValue.increment(1), 
-            [countField]: firebase.firestore.FieldValue.increment(1) 
-        });
+        db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(reward), [progressField]: c ? 0 : firebase.firestore.FieldValue.increment(1), [countField]: firebase.firestore.FieldValue.increment(1) });
     }
 
     function submitWithdraw() {
@@ -321,8 +332,7 @@
         const acc = document.getElementById('payAcc').value;
         const met = document.getElementById('methodSelect').value;
         if(!amt || !acc || !met) return alert("Fill all fields.");
-        if(amt < wSet.min) return alert("Min: ৳" + wSet.min);
-        if(userData.balance < amt) return alert("Low balance!");
+        if(amt < wSet.min || userData.balance < amt) return alert("Error in balance.");
         db.collection("withdrawals").add({ uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now() }).then(() => {
             db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
             alert("Withdraw Success! ✅"); closePage('withdrawPage');
@@ -347,7 +357,7 @@
             const all = [...real, ...fakeUsers].sort((a,b) => b.balance - a.balance);
             let h = "";
             all.slice(0, 10).forEach((u, i) => {
-                h += `<div class="top-user-card"><div class="rank-box ${i+1===1?'rank-1':''}">${i+1}</div><img src="${u.photo || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.referCount||0} Refers</p></div><div style="font-weight:800; color:#FF005C">৳ ${u.balance.toFixed(2)}</div></div>`;
+                h += `<div class="top-user-card"><div class="rank-box ${i+1===1?'rank-1':''}">${i+1}</div><img src="${u.photo}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.referCount||0} Refers</p></div><div style="font-weight:800; color:#FF005C">৳ ${u.balance.toFixed(2)}</div></div>`;
             });
             document.getElementById('topList').innerHTML = h;
         });
