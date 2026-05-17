@@ -3,125 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Admin - Bikash Pay</title>
+    <title id="pageTitle">Bikash Pay</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        :root { --bg: #070912; --card: #111420; --primary: #6366f1; --accent: #10b981; --text: #f8fafc; --muted: #94a3b8; --border: #1f2937; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); }
-        .mobile-header { background: #0b0e1a; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-        .sidebar { position: fixed; left: -280px; top: 0; width: 260px; height: 100vh; background: #0b0e1a; border-right: 1px solid var(--border); padding: 25px; transition: 0.3s; z-index: 1000; overflow-y: auto; }
-        .sidebar.active { left: 0; }
-        .nav-links li { padding: 14px 15px; border-radius: 12px; cursor: pointer; color: var(--muted); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; font-size: 14px; }
-        .nav-links li.active { background: #1c2132; color: white; border: 1px solid #334155; }
-        .main-wrapper { padding: 20px; width: 100%; max-width: 800px; margin: auto; }
-        .section { display: none; } .section.active { display: block; }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: var(--card); padding: 15px; border-radius: 18px; border: 1px solid var(--border); text-align: center; }
-        .stat-card h3 { font-size: 20px; color: var(--accent); }
-        .input-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 20px; }
-        label { display: block; margin-top: 15px; color: var(--muted); font-size: 12px; font-weight: 700; }
-        input, textarea, select { width: 100%; background: #080a13; border: 1px solid var(--border); padding: 14px; color: white; border-radius: 12px; margin-top: 8px; outline: none; }
-        .btn-update { background: linear-gradient(135deg, var(--primary), #4f46e5); color: white; border: none; padding: 15px; border-radius: 14px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 20px; }
-        .user-item { background: #0d121d; padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #1f2937; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .online { background: #10b981; }
-        .offline { background: #ef4444; }
-        #loginScreen { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .login-box { background: var(--card); padding: 40px; border-radius: 35px; width: 100%; max-width: 360px; text-align: center; border: 1px solid var(--border); }
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 500; }
-        .overlay.active { display: block; }
+        body { background: #FF005C; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        
+        /* Modern App Container */
+        .app-container { width: 100%; max-width: 414px; height: 95vh; background: #FFECF2; border-radius: 40px; position: relative; overflow: hidden; display: none; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        
+        header { padding: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .bdt-badge { background: #E91E63; color: white; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3); }
+        
+        .profile-section { background: white; margin: 0 20px; padding: 15px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .wallet-card { background: linear-gradient(135deg, #FF005C, #C2185B); color: white; padding: 10px 20px; border-radius: 15px; text-align: center; }
+        
+        .menu-grid { flex: 1; padding: 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; overflow-y: auto; }
+        .menu-item { background: white; border-radius: 25px; padding: 25px 10px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .menu-item i { font-size: 32px; color: #FF005C; margin-bottom: 12px; display: block; }
+        .menu-item span { font-size: 14px; font-weight: 800; color: #333; }
+        .menu-item:active { transform: scale(0.95); background: #fff0f5; }
+
+        /* Overlay Pages Header */
+        .page-overlay { position: absolute; inset: 0; background: #FFECF2; z-index: 100; padding: 25px; display: none; flex-direction: column; overflow-y: auto; }
+        .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .back-btn { font-size: 18px; font-weight: 800; color: #333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .ov-balance-badge { background: white; color: #FF005C; padding: 6px 15px; border-radius: 50px; font-weight: 800; font-size: 13px; border: 1.5px solid #FF005C; }
+
+        .task-option { background: white; padding: 22px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px; border: 1px solid #fff; transition: 0.3s; }
+        .task-option:active { border-color: #FF005C; background: #fff9fa; }
+        .play-tag { font-weight: 800; color: white; background: #FF005C; padding: 6px 18px; border-radius: 50px; font-size: 12px; }
+
+        /* Modern Block Screen Style */
+        #blockScreen { position: fixed; inset: 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; }
+        .block-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); padding: 40px 30px; border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 320px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        .block-icon { width: 80px; height: 80px; background: #ff4d4d; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(255, 77, 77, 0.4); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        #blockTitle { font-size: 22px; font-weight: 800; letter-spacing: 1px; color: #ff4d4d; }
+        #vpnNoticeText { margin-top: 15px; font-size: 14px; color: #b2bec3; line-height: 1.6; }
+
+        input, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; font-weight: 600; }
+        .btn-main { background: #FF005C; color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(255, 0, 92, 0.2); }
+        #countdownBox { font-size: 14px; color: #FF005C; font-weight: 800; text-align: center; margin-top: 15px; padding: 15px; background: white; border-radius: 15px; border: 2px solid #FF005C; display: none; }
+        #loadingScreen { position: fixed; inset: 0; background: #FFECF2; z-index: 8888; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; color: #FF005C; }
+        .loader { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #FF005C; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div id="loginScreen">
-    <div class="login-box">
-        <h2 style="margin-bottom: 20px;">MASTER LOGIN</h2>
-        <input type="password" id="adminPass" placeholder="Admin Password">
-        <button class="btn-update" onclick="checkAuth()">Login</button>
+<div id="loadingScreen"><div class="loader"></div>🛡️ Security Shield Active...</div>
+
+<!-- Modern Block Screen -->
+<div id="blockScreen">
+    <div class="block-card">
+        <div class="block-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <h1 id="blockTitle">ACCESS DENIED</h1>
+        <p id="vpnNoticeText"></p>
+        <button onclick="location.reload()" style="margin-top:25px; background:transparent; border:1px solid #555; color:white; padding:10px 20px; border-radius:10px; font-size:12px;">Try Again</button>
     </div>
 </div>
 
-<div class="mobile-header">
-    <i class="fa-solid fa-bars-staggered" onclick="toggleSidebar()"></i>
-    <span style="font-weight:800; color:#fbbf24">MASTER CONSOLE</span>
-    <i class="fa-solid fa-crown"></i>
-</div>
-
-<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-
-<div class="sidebar" id="sidebar">
-    <h2 style="color:white; margin-bottom:30px">MENU</h2>
-    <ul class="nav-links">
-        <li class="active" onclick="showSection('generalTab', this)"><i class="fa-solid fa-cog"></i> General Settings</li>
-        <li onclick="showSection('adTab', this)"><i class="fa-solid fa-rectangle-ad"></i> Ad Settings</li>
-        <li onclick="showSection('userTab', this)"><i class="fa-solid fa-users-gear"></i> User Control</li>
-        <li onclick="showSection('refTab', this)"><i class="fa-solid fa-share-nodes"></i> Refer Settings</li>
-        <li onclick="showSection('vpnTab', this)"><i class="fa-solid fa-vpn-lock"></i> VPN Shield</li>
-        <li onclick="showSection('withdrawTab', this)"><i class="fa-solid fa-wallet"></i> Withdraw Config</li>
-        <li onclick="showSection('methodTab', this)"><i class="fa-solid fa-credit-card"></i> Pay Methods</li>
-        <li onclick="showSection('supTab', this)"><i class="fa-solid fa-headset"></i> Support Config</li>
-        <li onclick="showSection('reqTab', this)"><i class="fa-solid fa-receipt"></i> Requests</li>
-        <li onclick="showSection('passTab', this)"><i class="fa-solid fa-key"></i> Password</li>
-    </ul>
-</div>
-
-<div class="main-wrapper">
-    <div class="stats-grid">
-        <div class="stat-card"><h3 id="statTotal">0</h3><p style="font-size:10px;">Total Users</p></div>
-        <div class="stat-card"><h3 id="statOnline" style="color:#10b981">0</h3><p style="font-size:10px;">Online</p></div>
-        <div class="stat-card"><h3 id="statReq" style="color:#f59e0b">0</h3><p style="font-size:10px;">Pending Req</p></div>
-    </div>
-
-    <div id="generalTab" class="section active">
-        <h2>General Config</h2>
-        <div class="input-card">
-            <label>App Name</label><input type="text" id="appTitleInput">
-            <button class="btn-update" onclick="saveGeneralSettings()">Update App Name ✅</button>
+<div class="app-container" id="mainApp">
+    <header>
+        <div id="appNameHeader" style="font-weight: 800; color: #FF005C; font-size: 20px;">Bikash Pay</div>
+        <div class="bdt-badge">৳ <span class="global-balance">0.00</span></div>
+    </header>
+    
+    <div class="profile-section">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <img src="" style="width:50px; height:50px; border-radius:12px; border:2px solid #FF005C;" id="uPic">
+            <div>
+                <div style="font-weight: 800; font-size: 16px;" id="uName">User</div>
+                <div id="uLimits" style="font-size: 10px; color: #FF005C; font-weight: bold;">Syncing...</div>
+            </div>
+        </div>
+        <div class="wallet-card">
+            <small>Wallet</small>
+            <div>৳ <span class="global-balance">0.00</span></div>
         </div>
     </div>
 
-    <div id="adTab" class="section">
-        <h2>Ad Protocols</h2>
-        <div class="input-card">
-            <label>Ad Status</label>
-            <select id="adStatus">
-                <option value="ON">ON</option>
-                <option value="OFF">OFF</option>
-            </select>
-            
-            <h3 style="margin-top:20px; color:#6366f1;">Task 1 Settings</h3>
-            <label>Task 1 Reward (৳)</label><input type="number" id="reward1" step="0.01">
-            <label>Task 1 Daily Limit</label><input type="number" id="limit1">
-            <label>Task 1 Click After (Views)</label><input type="number" id="clickAfter1">
-            <label>Task 1 Zone ID</label><input type="text" id="mZone1">
-
-            <h3 style="margin-top:20px; color:#10b981;">Task 2 Settings</h3>
-            <label>Task 2 Reward (৳)</label><input type="number" id="reward2" step="0.01">
-            <label>Task 2 Daily Limit</label><input type="number" id="limit2">
-            <label>Task 2 Click After (Views)</label><input type="number" id="clickAfter2">
-            <label>Task 2 Zone ID</label><input type="text" id="mZone2">
-
-            <label style="margin-top:20px;">Click Notice</label>
-            <textarea id="clickNotice"></textarea>
-            
-            <button class="btn-update" onclick="saveAdSettings()">Save All Ads ✅</button>
-        </div>
+    <div class="menu-grid">
+        <div class="menu-item" onclick="openPage('taskPage')"><i class="fa-solid fa-circle-play"></i><span>Start Task</span></div>
+        <div class="menu-item" onclick="openPage('topPage')"><i class="fa-solid fa-crown"></i><span>Top User</span></div>
+        <div class="menu-item" onclick="openPage('profilePage')"><i class="fa-solid fa-user-gear"></i><span>Profile</span></div>
+        <div class="menu-item" onclick="openPage('invitePage')"><i class="fa-solid fa-gift"></i><span>Refer & Earn</span></div>
+        <div class="menu-item" onclick="openPage('withdrawPage')"><i class="fa-solid fa-wallet"></i><span>Withdraw</span></div>
+        <div class="menu-item" id="supBtn"><i class="fa-solid fa-headset"></i><span>Support</span></div>
     </div>
 
-    <div id="userTab" class="section"><h2>Users Control</h2><div id="allUserList"></div></div>
-    <div id="reqTab" class="section"><h2>Requests</h2><div id="requestList"></div></div>
-    <div id="refTab" class="section"><div class="input-card"><label>Bot User</label><input type="text" id="botUser"><label>Refer Bonus</label><input type="number" id="referBonus"><button class="btn-update" onclick="saveReferSettings()">Save Refer</button></div></div>
-    <div id="vpnTab" class="section"><div class="input-card"><label>Status</label><select id="vpnToggle"><option value="OFF">OFF</option><option value="ON">ON</option></select><label>Allowed Countries</label><input type="text" id="allowedCountries" placeholder="AU, US, GB"><label>Notice</label><textarea id="vpnNotice"></textarea><button class="btn-update" onclick="saveVPNSettings()">Save VPN</button></div></div>
-    <div id="withdrawTab" class="section"><div class="input-card"><label>Min Withdraw</label><input type="number" id="minW"><button class="btn-update" onclick="saveWithdrawSettings()">Update Limit</button></div></div>
-    <div id="methodTab" class="section"><div class="input-card"><input type="text" id="mName" placeholder="Method Name"><button class="btn-update" onclick="addMethod()">Add Method</button><div id="mList" style="margin-top:20px"></div></div></div>
-    <div id="supTab" class="section"><div class="input-card"><label>Support Link</label><input type="text" id="supLink"><button class="btn-update" onclick="saveSupportSettings()">Save Support</button></div></div>
-    <div id="passTab" class="section"><h2>Password</h2><div class="input-card"><label>New Password</label><input type="text" id="newPass"><button class="btn-update" onclick="updateAdminPass()">Update Password ✅</button></div></div>
+    <!-- Pages -->
+    <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading Methods...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button class="btn-main" onclick="submitWithdraw()">Submit Request</button><button class="btn-main" style="background:#6366f1; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
+    <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="historyList"></div></div>
+    <div id="topPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div id="topList"></div></div>
+    <div id="profilePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> Stats</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white;"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1: <span id="st1" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2: <span id="st2" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Refers: <span id="sRef" style="color:#FF005C">0</span></p></div></div>
+    <div id="invitePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('invitePage')"><i class="fa-solid fa-arrow-left"></i> Invite</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:30px; border-radius:30px; text-align:center;"><h3 style="font-weight:800; color:#333;">Refer & Earn ৳<span id="refAmt">0</span></h3><input type="text" id="refLink" readonly style="width:100%; background:#f0f0f0; border:1px dashed #FF005C; padding:12px; border-radius:12px; margin-top:20px; font-size:11px; text-align:center;"><button onclick="copyRef()" class="btn-main" style="margin-top:15px;">Copy Link</button></div></div>
+    <div id="taskPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('taskPage')"><i class="fa-solid fa-arrow-left"></i> Start Task</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div class="task-option" id="btnT1" onclick="handleAdClick('1')"><span style="font-weight:800">Task One</span><span class="play-tag">Play</span></div><div class="task-option" id="btnT2" onclick="handleAdClick('2')"><span style="font-weight:800">Task Two</span><span class="play-tag">Play</span></div><div id="countdownBox"></div></div>
 </div>
+
+<div id="clickModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; display:none; justify-content:center; align-items:center; padding:20px;"><div style="background:white; padding:30px; border-radius:30px; text-align:center; width:100%; max-width:350px;"><h2 style="color:#FF005C">Attention!</h2><p id="modalNotice" style="margin-top:10px; font-size:14px; color:#555;"></p><button id="modalBtn" style="background:#10b981; color:white; padding:15px; width:100%; border:none; border-radius:15px; margin-top:20px; font-weight:800;">Show Ad & Click</button></div></div>
 
 <script>
     const firebaseConfig = {
@@ -136,83 +121,237 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    let currentAdminPass = "CB#Admin@2025!Boss";
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-    db.collection("settings").doc("admin").onSnapshot(doc => { if(doc.exists) currentAdminPass = doc.data().password; });
-
-    function checkAuth() { if(document.getElementById('adminPass').value === currentAdminPass) { document.getElementById('loginScreen').style.display='none'; loadData(); } else { alert("Incorrect!"); } }
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
-    function showSection(id, el) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-links li').forEach(l => l.classList.remove('active')); el.classList.add('active'); toggleSidebar(); }
-
-    function loadData() {
-        db.collection("users").onSnapshot(snap => {
-            let total = 0, online = 0, h = ""; snap.forEach(doc => {
-                total++; const u = doc.data(); const isOn = (Date.now() - (u.lastSeen || 0)) < 70000;
-                if(isOn) online++;
-                h += `<div class="user-item"><p><span class="status-dot ${isOn?'online':'offline'}"></span><b>${u.name}</b> (৳${(u.balance || 0).toFixed(2)})</p><div style="display:flex; gap:10px; margin-top:10px;"><button onclick="editBal('${doc.id}',1)" style="flex:1; background:#10b981; color:white; border:none; padding:8px; border-radius:8px;">+ Add</button><button onclick="editBal('${doc.id}',-1)" style="flex:1; background:#f59e0b; color:white; border:none; padding:8px; border-radius:8px;">- Sub</button><button onclick="deleteUser('${doc.id}')" style="flex:1; background:#ef4444; color:white; border:none; padding:8px; border-radius:8px;">Del</button></div></div>`;
-            });
-            document.getElementById('statTotal').innerText = total; document.getElementById('statOnline').innerText = online; document.getElementById('allUserList').innerHTML = h;
-        });
-
-        db.collection("withdrawals").where("status", "==", "Pending").onSnapshot(snap => {
-            document.getElementById('statReq').innerText = snap.size;
-            let h = ""; snap.forEach(doc => {
-                const r = doc.data();
-                h += `<div class="user-item" style="border-left:5px solid #f59e0b"><p><b>${r.name}</b> (৳${r.amount})</p><p style="font-size:11px;">Acc: ${r.account} [${r.method}]</p><div style="display:flex; gap:10px; margin-top:10px;"><button onclick="updateReq('${doc.id}','Approved','${r.uid}',${r.amount})" style="flex:1; background:#10b981; color:white; border:none; padding:10px; border-radius:8px;">Approve</button><button onclick="updateReq('${doc.id}','Rejected','${r.uid}',${r.amount})" style="flex:1; background:#ef4444; color:white; border:none; padding:10px; border-radius:8px;">Reject</button></div></div>`;
-            });
-            document.getElementById('requestList').innerHTML = h || "No requests.";
-        });
-
-        db.collection("settings").doc("general").onSnapshot(doc => { if(doc.exists) document.getElementById('appTitleInput').value = doc.data().appName; });
-        db.collection("settings").doc("ads").onSnapshot(doc => { 
-            if(doc.exists) { 
-                const d = doc.data(); 
-                document.getElementById('adStatus').value = d.adStatus || "ON";
-                document.getElementById('reward1').value = d.reward1 || 0; 
-                document.getElementById('reward2').value = d.reward2 || 0; 
-                document.getElementById('limit1').value = d.limit1 || 0; 
-                document.getElementById('limit2').value = d.limit2 || 0; 
-                document.getElementById('mZone1').value = d.zone1 || ""; 
-                document.getElementById('mZone2').value = d.zone2 || ""; 
-                document.getElementById('clickAfter1').value = d.clickAfter1 || 3; 
-                document.getElementById('clickAfter2').value = d.clickAfter2 || 3; 
-                document.getElementById('clickNotice').value = d.clickNotice || ""; 
-            } 
-        });
-        db.collection("settings").doc("vpn").onSnapshot(doc => { if(doc.exists) { document.getElementById('vpnToggle').value = doc.data().status; document.getElementById('allowedCountries').value = doc.data().allowed; document.getElementById('vpnNotice').value = doc.data().notice; } });
-        db.collection("settings").doc("referral").onSnapshot(doc => { if(doc.exists) { document.getElementById('botUser').value = doc.data().botUser; document.getElementById('referBonus').value = doc.data().bonus; } });
-        db.collection("settings").doc("withdraw").onSnapshot(doc => { if(doc.exists) document.getElementById('minW').value = doc.data().min; });
-        db.collection("settings").doc("support").onSnapshot(doc => { if(doc.exists) document.getElementById('supLink').value = doc.data().link; });
-        db.collection("pay_methods").onSnapshot(snap => { let h = ""; snap.forEach(doc => { h += `<div class="user-item"><span>${doc.data().name}</span><button onclick="deleteMethod('${doc.id}')" style="float:right; border:none; color:red; background:none;">Del</button></div>`; }); document.getElementById('mList').innerHTML = h; });
+    if (!tg.initData || !tg.initDataUnsafe.user) {
+        document.body.innerHTML = "<div style='background:#FF005C; height:100vh; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;'>🛑 OPEN VIA TELEGRAM</div>";
+        throw new Error("Invalid Auth");
     }
 
-    function updateAdminPass() { const p = document.getElementById('newPass').value; if(!p) return alert("Enter password!"); db.collection("settings").doc("admin").set({password: p}, {merge:true}).then(() => alert("Updated! ✅")); }
-    function saveGeneralSettings() { db.collection("settings").doc("general").set({ appName: document.getElementById('appTitleInput').value }, {merge:true}).then(()=>alert("Saved!")); }
-    
-    function saveAdSettings() { 
-        db.collection("settings").doc("ads").set({ 
-            adStatus: document.getElementById('adStatus').value,
-            reward1: parseFloat(document.getElementById('reward1').value),
-            reward2: parseFloat(document.getElementById('reward2').value),
-            zone1: document.getElementById('mZone1').value, 
-            zone2: document.getElementById('mZone2').value, 
-            limit1: parseInt(document.getElementById('limit1').value), 
-            limit2: parseInt(document.getElementById('limit2').value), 
-            clickAfter1: parseInt(document.getElementById('clickAfter1').value), 
-            clickAfter2: parseInt(document.getElementById('clickAfter2').value), 
-            clickNotice: document.getElementById('clickNotice').value 
-        }, {merge:true}).then(()=>alert("All settings saved!")); 
+    let uid = tg.initDataUnsafe.user.id.toString();
+    let cbDeviceId = localStorage.getItem('cb_hw_token') || 'cb-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+    localStorage.setItem('cb_hw_token', cbDeviceId);
+
+    let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {};
+
+    const fakeUsers = [
+        {name: "Mohammad Rakib", balance: 145.20, referCount: 52, photo: "https://randomuser.me/api/portraits/men/32.jpg"},
+        {name: "Sriti Hasan", balance: 128.00, referCount: 38, photo: "https://randomuser.me/api/portraits/women/44.jpg"},
+        {name: "Sumon Ahmed", balance: 110.50, referCount: 32, photo: "https://randomuser.me/api/portraits/men/46.jpg"},
+        {name: "Mst. Jesmin", balance: 95.80, referCount: 28, photo: "https://randomuser.me/api/portraits/women/12.jpg"},
+        {name: "Abdur Rahman", balance: 88.00, referCount: 21, photo: "https://randomuser.me/api/portraits/men/15.jpg"}
+    ];
+
+    async function checkSecurity() {
+        try {
+            const vSnap = await db.collection("settings").doc("vpn").get();
+            if (vSnap.exists && vSnap.data().status === "ON") {
+                const response = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+                const cfText = await response.text();
+                const match = cfText.match(/loc=([A-Z]{2})/);
+                if (match) {
+                    const currentLoc = match[1];
+                    const allowedCountries = (vSnap.data().allowed || "").split(',').map(c => c.trim().toUpperCase());
+                    if (!allowedCountries.includes(currentLoc)) {
+                        document.getElementById('loadingScreen').style.display='none';
+                        document.getElementById('blockScreen').style.display='flex';
+                        document.getElementById('vpnNoticeText').innerText = vSnap.data().notice;
+                        return;
+                    }
+                }
+            }
+            document.getElementById('loadingScreen').style.display='none';
+            document.getElementById('mainApp').style.display='flex';
+            init();
+        } catch (e) {
+            document.getElementById('loadingScreen').style.display='none';
+            document.getElementById('mainApp').style.display='flex';
+            init();
+        }
     }
 
-    function saveVPNSettings() { db.collection("settings").doc("vpn").set({ status: document.getElementById('vpnToggle').value, allowed: document.getElementById('allowedCountries').value, notice: document.getElementById('vpnNotice').value }, {merge:true}).then(()=>alert("Saved!")); }
-    function saveReferSettings() { db.collection("settings").doc("referral").set({ botUser: document.getElementById('botUser').value, bonus: parseFloat(document.getElementById('referBonus').value) }, {merge:true}).then(()=>alert("Saved!")); }
-    function saveWithdrawSettings() { db.collection("settings").doc("withdraw").set({ min: parseFloat(document.getElementById('minW').value) }, {merge:true}).then(()=>alert("Update Success!")); }
-    function saveSupportSettings() { db.collection("settings").doc("support").set({ link: document.getElementById('supLink').value }, {merge:true}).then(()=>alert("Saved!")); }
-    function addMethod() { const n = document.getElementById('mName').value; if(n) db.collection("pay_methods").add({name: n}).then(()=>document.getElementById('mName').value=''); }
-    function deleteMethod(id) { db.collection("pay_methods").doc(id).delete(); }
-    function editBal(id, t) { const v = parseFloat(prompt("Amount:")); if(!isNaN(v)) db.collection("users").doc(id).update({ balance: firebase.firestore.FieldValue.increment(v * t) }); }
-    function deleteUser(id) { if(confirm("Delete?")) db.collection("users").doc(id).delete(); }
-    function updateReq(id, s, u, a) { if(confirm("Are you sure?")) { db.collection("withdrawals").doc(id).update({status: s}).then(() => { if(s === 'Rejected') db.collection("users").doc(u).update({balance: firebase.firestore.FieldValue.increment(a)}); alert("Updated!"); }); } }
+    async function init() {
+        db.collection("settings").doc("general").onSnapshot(doc => { if(doc.exists) { document.getElementById('appNameHeader').innerText = doc.data().appName || "Bikash Pay"; document.getElementById('pageTitle').innerText = doc.data().appName || "Bikash Pay"; } });
+        const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
+        let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
+        if(!isOwner) { 
+            document.getElementById('mainApp').style.display='none'; 
+            document.getElementById('blockScreen').style.display='flex'; 
+            document.getElementById('blockTitle').innerText = "DEVICE LOCKED!"; 
+            document.getElementById('vpnNoticeText').innerText = "Only one account per device is allowed.";
+            return; 
+        }
+
+        db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data(); sync(); });
+        db.collection("settings").doc("referral").onSnapshot(doc => { 
+            refSet = doc.data() || {}; 
+            let cleanBotUser = (refSet.botUser || "").replace('@', '');
+            document.getElementById('refLink').value = `https://t.me/${cleanBotUser}?start=${uid}`; 
+            document.getElementById('refAmt').innerText = refSet.bonus || 0;
+        });
+        db.collection("settings").doc("withdraw").onSnapshot(doc => { if(doc.exists) { wSet = doc.data(); document.getElementById('minWText').innerText = wSet.min || 0; } });
+        db.collection("settings").doc("support").onSnapshot(doc => { if(doc.exists) document.getElementById('supBtn').onclick = () => window.open(doc.data().link); });
+        
+        db.collection("pay_methods").onSnapshot(snap => {
+            let h = '<option value="">Select Method</option>';
+            snap.forEach(doc => { h += `<option value="${doc.data().name}">${doc.data().name}</option>`; });
+            document.getElementById('methodSelect').innerHTML = h;
+        });
+
+        const userRef = db.collection("users").doc(uid);
+        userRef.get().then((doc) => {
+            if (doc.exists) { userRef.onSnapshot(s => { userData = s.data(); sync(); }); } 
+            else {
+                const startParam = tg.initDataUnsafe.start_param;
+                let inviterId = (startParam && startParam !== uid) ? startParam : null;
+                const newUser = {
+                    name: tg.initDataUnsafe.user.first_name, photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
+                    balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: inviterId
+                };
+                userRef.set(newUser).then(() => {
+                    if (inviterId) {
+                        db.collection("settings").doc("referral").get().then(rSnap => {
+                            const bonus = rSnap.exists ? rSnap.data().bonus : 0;
+                            db.collection("users").doc(inviterId).update({ balance: firebase.firestore.FieldValue.increment(bonus), referCount: firebase.firestore.FieldValue.increment(1) });
+                        });
+                    }
+                    userRef.onSnapshot(s => { userData = s.data(); sync(); });
+                });
+            }
+        });
+
+        setInterval(() => { if(uid) db.collection("users").doc(uid).update({ lastSeen: Date.now() }); }, 30000);
+        loadTop(); loadHistory();
+    }
+
+    function sync() {
+        if(userData && settings) {
+            document.querySelectorAll('.global-balance').forEach(el => el.innerText = (userData.balance || 0).toFixed(2));
+            document.getElementById('uLimits').innerText = `T1: ${userData.adCount1||0}/${settings.limit1||0} | T2: ${userData.adCount2||0}/${settings.limit2||0}`;
+            document.getElementById('uName').innerText = userData.name; document.getElementById('uPic').src = userData.photo;
+            document.getElementById('pName').innerText = userData.name; document.getElementById('pId').innerText = "ID: " + uid; document.getElementById('pPic').src = userData.photo;
+            document.getElementById('st1').innerText = `${userData.adCount1||0}/${settings.limit1||0}`;
+            document.getElementById('st2').innerText = `${userData.adCount2||0}/${settings.limit2||0}`;
+            document.getElementById('sRef').innerText = userData.referCount || 0;
+        }
+    }
+
+    function handleAdClick(t) {
+        if(isWaiting) return;
+        if(settings.adStatus === "OFF") return alert("Tasks are currently disabled.");
+        activeT = t;
+        const count = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
+        const limit = t === '1' ? settings.limit1 : settings.limit2;
+        const progress = t === '1' ? (userData.viewProgress1 || 0) : (userData.viewProgress2 || 0);
+        const clickLimit = t === '1' ? (settings.clickAfter1 || 3) : (settings.clickAfter2 || 3);
+
+        if(count >= limit) return alert("Daily limit reached!");
+
+        if(progress >= clickLimit) { 
+            document.getElementById('modalNotice').innerText = settings.clickNotice; document.getElementById('clickModal').style.display = 'flex'; 
+            document.getElementById('modalBtn').onclick = () => { document.getElementById('clickModal').style.display = 'none'; runAd(t, true); };
+        } else { runAd(t, false); }
+    }
+
+    function runAd(t, c) {
+        const zone = t === '1' ? settings.zone1 : settings.zone2;
+        const old = document.getElementById('monetag-script'); if(old) old.remove();
+        const s = document.createElement('script'); s.id = 'monetag-script'; s.src = '//libtl.com/sdk.js'; s.setAttribute('data-zone', zone); s.setAttribute('data-sdk', 'show_' + zone); document.head.appendChild(s);
+        
+        let startMoment = 0;
+        s.onload = () => { 
+            if(window['show_'+zone]) {
+                startMoment = Date.now();
+                isWaiting = true;
+                showTimer();
+                window['show_'+zone]().then(() => {
+                    let duration = (Date.now() - startMoment) / 1000;
+                    if (duration >= 15) {
+                        updateDB(t, c);
+                        alert("Reward Added! ✅");
+                    } else {
+                        alert("Closed early! No reward. ❌");
+                    }
+                    isWaiting = false;
+                    document.getElementById('countdownBox').style.display = 'none';
+                }).catch(e => {
+                    isWaiting = false;
+                    document.getElementById('countdownBox').style.display = 'none';
+                });
+            }
+        };
+    }
+
+    function showTimer() {
+        const countBox = document.getElementById('countdownBox');
+        countBox.style.display = 'block';
+        let timeLeft = 15;
+        const interval = setInterval(() => {
+            if (timeLeft > 0 && isWaiting) {
+                countBox.innerText = `⏳ Watching Ad: ${timeLeft}s`;
+                timeLeft--;
+            } else {
+                clearInterval(interval);
+                if (isWaiting) countBox.innerText = `✅ Time Complete! Close ad.`;
+            }
+        }, 1000);
+    }
+
+    function updateDB(t, c) {
+        const progressField = t === '1' ? 'viewProgress1' : 'viewProgress2';
+        const countField = t === '1' ? 'adCount1' : 'adCount2';
+        const rewardAmount = t === '1' ? (settings.reward1 || 0) : (settings.reward2 || 0);
+        db.collection("users").doc(uid).update({
+            balance: firebase.firestore.FieldValue.increment(rewardAmount),
+            [progressField]: c ? 0 : firebase.firestore.FieldValue.increment(1),
+            [countField]: firebase.firestore.FieldValue.increment(1)
+        });
+    }
+
+    function submitWithdraw() {
+        const amt = parseFloat(document.getElementById('payAmt').value);
+        const acc = document.getElementById('payAcc').value;
+        const met = document.getElementById('methodSelect').value;
+        if(!amt || !acc || !met) return alert("Fill all fields!");
+        if(amt < wSet.min) return alert("Min: ৳" + wSet.min);
+        if(userData.balance < amt) return alert("Insufficient balance!");
+        db.collection("withdrawals").add({ uid: uid, name: userData.name, amount: amt, method: met, account: acc, status: "Pending", timestamp: Date.now() }).then(() => {
+            db.collection("users").doc(uid).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
+            alert("Withdraw Success! ✅"); closePage('withdrawPage');
+        });
+    }
+
+    function loadHistory() {
+        db.collection("withdrawals").where("uid","==",uid).onSnapshot(snap => {
+            let h = ""; let list = []; snap.forEach(doc => list.push(doc.data()));
+            list.sort((a,b) => b.timestamp - a.timestamp);
+            list.forEach(d => {
+                const c = d.status === "Approved" ? "#10b981" : d.status === "Rejected" ? "#ef4444" : "#f59e0b";
+                h += `<div class="history-card"><div><p style="font-weight:800; font-size:14px;">৳${d.amount} - ${d.method}</p><p style="font-size:10px; color:grey;">To: ${d.account}</p></div><span class="status-badge" style="background:${c}">${d.status}</span></div>`;
+            });
+            document.getElementById('historyList').innerHTML = h || "<p style='text-align:center; color:grey; padding-top:20px'>No history.</p>";
+        });
+    }
+
+    function loadTop() {
+        db.collection("users").orderBy("balance", "desc").limit(10).onSnapshot(snap => {
+            let real = []; snap.forEach(doc => real.push(doc.data()));
+            const all = [...real, ...fakeUsers].sort((a,b) => b.balance - a.balance);
+            let h = "";
+            all.slice(0, 10).forEach((u, i) => {
+                let rk = i+1;
+                h += `<div class="top-user-card"><div class="rank-box ${rk===1?'rank-1':''}">${rk}</div><img src="${u.photo || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.referCount||0} Refers</p></div><div style="font-weight:800; color:#FF005C">৳ ${u.balance.toFixed(2)}</div></div>`;
+            });
+            document.getElementById('topList').innerHTML = h;
+        });
+    }
+
+    function openPage(id) { document.getElementById(id).style.display = 'flex'; }
+    function closePage(id) { document.getElementById(id).style.display = 'none'; }
+    function copyRef() { const refLink = document.getElementById('refLink'); refLink.select(); document.execCommand('copy'); alert("Refer Link Copied!"); }
+
+    checkSecurity();
 </script>
 </body>
 </html>
