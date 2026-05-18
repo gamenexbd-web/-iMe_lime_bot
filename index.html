@@ -15,7 +15,7 @@
         
         .app-container { width: 100%; max-width: 414px; height: 95vh; background: #FFECF2; border-radius: 40px; position: relative; overflow: hidden; display: none; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
         header { padding: 25px; display: flex; justify-content: space-between; align-items: center; }
-        .bdt-badge { background: #E91E63; color: white; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 14px; }
+        .bdt-badge { background: #E91E63; color: white; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3); }
         .profile-section { background: white; margin: 0 20px; padding: 15px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
         .wallet-card { background: linear-gradient(135deg, #FF005C, #C2185B); color: white; padding: 10px 20px; border-radius: 15px; text-align: center; }
         .menu-grid { flex: 1; padding: 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; overflow-y: auto; }
@@ -23,44 +23,48 @@
         .menu-item i { font-size: 32px; color: #FF005C; margin-bottom: 12px; display: block; }
         .menu-item span { font-size: 14px; font-weight: 800; color: #333; }
 
-        /* Security Screens */
         .block-screen { position: fixed; inset: 0; background: #0f172a; color: white; z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; }
-        #tgOnlyScreen { background: linear-gradient(180deg, #0088cc 0%, #005580 100%); }
-        .tg-logo { width: 100px; height: 100px; background: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #0088cc; margin-bottom: 25px; }
+        .tg-only-bg { background: linear-gradient(180deg, #0088cc 0%, #005580 100%) !important; }
+        .tg-logo { width: 100px; height: 100px; background: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #0088cc; margin-bottom: 25px; box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+        .kick-icon { font-size: 60px; color: #ef4444; margin-bottom: 20px; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         .page-overlay { position: absolute; inset: 0; background: #FFECF2; z-index: 100; padding: 25px; display: none; flex-direction: column; overflow-y: auto; }
         .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .back-btn { font-size: 18px; font-weight: 800; color: #333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .ov-balance-badge { background: white; color: #FF005C; padding: 6px 15px; border-radius: 50px; font-weight: 800; font-size: 13px; border: 1.5px solid #FF005C; }
+        
         #loadingScreen { position: fixed; inset: 0; background: #FFECF2; z-index: 8888; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; color: #FF005C; }
         .loader { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #FF005C; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        input, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; font-weight: 600; }
         .task-option { background: white; padding: 22px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px; }
         .play-tag { font-weight: 800; color: white; background: #FF005C; padding: 6px 18px; border-radius: 50px; font-size: 12px; }
-        .top-user-card { background: white; padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .top-user-card { background: white; padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; border: 1px solid #fff; }
         .user-thumb { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #FF005C; object-fit: cover; }
+        .history-card { background: white; padding: 18px; border-radius: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid #FF005C; }
         #clickModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 10000; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modern-modal { background: white; width: 100%; max-width: 340px; border-radius: 40px; padding: 35px 25px; text-align: center; }
-        input, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<div id="loadingScreen"><div class="loader"></div>🛡️ Security Shield Active...</div>
+<div id="loadingScreen"><div class="loader"></div>🛡️ Security Heartbeat...</div>
 
-<div id="tgOnlyScreen" class="block-screen">
+<div id="tgOnlyScreen" class="block-screen tg-only-bg">
     <div class="tg-logo"><i class="fa-brands fa-telegram"></i></div>
     <h1 style="font-size:24px; font-weight:800; margin-bottom:10px;">TELEGRAM ONLY!</h1>
-    <p style="color:#e0f2fe; font-size:14px;">Open this app inside Telegram to access your account.</p>
+    <p style="color:#e0f2fe; font-size:14px; line-height:1.6;">Access Denied. This app is only for Telegram users.</p>
     <a href="https://t.me/" style="margin-top:30px; background:white; color:#0088cc; padding:15px 40px; border-radius:20px; text-decoration:none; font-weight:800;">Join Telegram</a>
 </div>
 
 <div id="blockScreen" class="block-screen">
-    <div style="background: #1e293b; padding: 40px 20px; border-radius: 30px; width:100%; max-width:340px;">
-        <i class="fa-solid fa-shield-virus" style="font-size:50px; color:#ef4444; margin-bottom:20px;"></i>
-        <h2 style="color:#ef4444; font-weight:800;">ACCESS BLOCKED</h2>
-        <p id="vpnNoticeText" style="color:#94a3b8; margin-top:15px;"></p>
-        <button onclick="location.reload()" style="margin-top:25px; background:#ef4444; color:white; border:none; padding:12px 30px; border-radius:12px; font-weight:700;">Refresh</button>
+    <div style="background: #1e293b; padding: 40px 20px; border-radius: 30px; border: 1px solid #334155; width:100%; max-width:340px;">
+        <div class="kick-icon"><i class="fa-solid fa-shield-virus"></i></div>
+        <h2 style="color:#ef4444; font-weight:800; margin-bottom:15px;">KICKED BY GUARD</h2>
+        <p id="vpnNoticeText" style="color:#94a3b8; font-size:14px; line-height:1.6;"></p>
+        <button onclick="location.reload()" style="margin-top:25px; background:#ef4444; border:none; color:white; padding:12px 30px; border-radius:12px; font-weight:700;">Reconnect</button>
     </div>
 </div>
 
@@ -70,7 +74,7 @@
         <div class="bdt-badge">৳ <span class="global-balance">0.00</span></div>
     </header>
     <div class="profile-section">
-        <div style="display:flex; align-items:center; gap:12px;"><img src="" style="width:50px; height:50px; border-radius:12px;" id="uPic"><div><div style="font-weight: 800; font-size: 16px;" id="uName">User</div><div id="uLimits" style="font-size: 10px; color: #FF005C; font-weight: bold;">Syncing...</div></div></div>
+        <div style="display:flex; align-items:center; gap:12px;"><img src="" style="width:50px; height:50px; border-radius:12px; border:2px solid #FF005C;" id="uPic"><div><div style="font-weight: 800; font-size: 16px;" id="uName">User</div><div id="uLimits" style="font-size: 10px; color: #FF005C; font-weight: bold;">Syncing...</div></div></div>
         <div class="wallet-card"><small>Wallet</small><div>৳ <span class="global-balance">0.00</span></div></div>
     </div>
     <div class="menu-grid">
@@ -83,10 +87,10 @@
     </div>
 
     <!-- Overlays -->
-    <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button onclick="submitWithdraw()" style="background: #FF005C; color:white; border:none; padding:15px; width:100%; border-radius:15px; font-weight:800;">Submit Request</button><button style="background: #6366f1; color:white; border:none; padding:15px; width:100%; border-radius:15px; font-weight:800; margin-top:10px;" onclick="openPage('historyPage')">History</button></div></div>
+    <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button onclick="submitWithdraw()" style="background: #FF005C; color:white; border:none; padding:15px; width:100%; border-radius:15px; font-weight:800;">Submit Request</button><button style="background: #6366f1; color:white; border:none; padding:15px; width:100%; border-radius:15px; font-weight:800; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div></div><div id="historyList"></div></div>
     <div id="topPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div></div><div id="topList"></div></div>
-    <div id="profilePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> Stats</div></div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white;"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p>Task 1: <span id="st1" style="color:#FF005C; float:right;">0/0</span></p><p style="margin-top:10px;">Task 2: <span id="st2" style="color:#FF005C; float:right;">0/0</span></p><p style="margin-top:10px;">Refers: <span id="sRef" style="color:#FF005C; float:right;">0</span></p></div></div>
+    <div id="profilePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> Stats</div></div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white;"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1: <span id="st1" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2: <span id="st2" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Refers: <span id="sRef" style="color:#FF005C">0</span></p></div></div>
     <div id="invitePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('invitePage')"><i class="fa-solid fa-arrow-left"></i> Invite</div></div><div style="background:white; padding:30px; border-radius:30px; text-align:center;"><h3 style="font-weight:800; color:#333;">Refer & Earn ৳<span id="refAmt">0</span></h3><input type="text" id="refLink" readonly style="width:100%; background:#f0f0f0; border:1px dashed #FF005C; padding:12px; border-radius:12px; margin-top:20px; font-size:11px; text-align:center;"><button onclick="copyRef()" style="background: #FF005C; color:white; border:none; padding:15px; width:100%; border-radius:15px; font-weight:800; margin-top:15px;">Copy Link</button></div></div>
     <div id="taskPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('taskPage')"><i class="fa-solid fa-arrow-left"></i> Start Task</div></div><div class="task-option" onclick="handleAdClick('1')"><span style="font-weight:800">Task One</span><span class="play-tag">Play</span></div><div class="task-option" onclick="handleAdClick('2')"><span style="font-weight:800">Task Two</span><span class="play-tag">Play</span></div><div id="countdownBox" style="font-size: 14px; color: #FF005C; font-weight: 800; text-align: center; margin-top: 15px; padding: 15px; background: white; border-radius: 15px; border: 2px solid #FF005C; display: none;"></div></div>
 </div>
@@ -114,7 +118,7 @@
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
 
-    // --- TG Only Guard ---
+    // --- 1. Telegram Only Guard ---
     if (!tg.initData || !tg.initDataUnsafe.user) {
         document.getElementById('loadingScreen').style.display='none';
         document.getElementById('tgOnlyScreen').style.display='flex';
@@ -127,30 +131,52 @@
     localStorage.setItem('cb_hw_token', cbDeviceId);
     
     let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {};
+    let initialIP = ""; // To track IP change
+
     const fakeUsers = [
         {name: "Mohammad Rakib", balance: 145.20, referCount: 52, photo: "https://randomuser.me/api/portraits/men/32.jpg"},
         {name: "Sriti Hasan", balance: 128.00, referCount: 38, photo: "https://randomuser.me/api/portraits/women/44.jpg"},
         {name: "Sumon Ahmed", balance: 110.50, referCount: 32, photo: "https://randomuser.me/api/portraits/men/46.jpg"}
     ];
 
-    // --- 5s Heartbeat Guard ---
+    // --- 2. Fix: Powerful 5-Second Security Heartbeat ---
     async function securityAudit() {
         try {
             const vSnap = await db.collection("settings").doc("vpn").get();
             const vData = vSnap.exists ? vSnap.data() : { status: "OFF" };
+            
             if (vData.status === "ON") {
-                const cf = await (await fetch('https://www.cloudflare.com/cdn-cgi/trace')).text();
-                const loc = cf.match(/loc=([A-Z]{2})/)[1];
+                const res = await fetch('https://ipwho.is/');
+                const data = await res.json();
+                
+                if (!data || !data.success) return true; // API issue, bypass to avoid false kick
+
+                const loc = data.country_code.toUpperCase();
+                const currentIP = data.ip;
+                const isProxy = data.security.proxy || data.security.vpn || data.security.tor;
                 const allowed = vData.allowed.split(',').map(c => c.trim().toUpperCase());
-                if (!allowed.includes(loc)) {
-                    document.getElementById('mainApp').style.display='none';
-                    document.getElementById('blockScreen').style.display='flex';
-                    document.getElementById('vpnNoticeText').innerText = vData.notice;
+
+                // First time IP storage
+                if (initialIP === "") initialIP = currentIP;
+
+                // Kick Logic: Country mismatch OR IP changed (VPN disconnected)
+                if (!allowed.includes(loc) || (initialIP !== currentIP)) {
+                    triggerKick(vData.notice || "VPN Disconnected or Unauthorized Location!");
                     return false;
                 }
             }
             return true;
-        } catch (e) { return true; }
+        } catch (e) {
+            console.error("Security Audit Failed:", e);
+            return true; // Don't kick if API is down
+        }
+    }
+
+    function triggerKick(msg) {
+        document.getElementById('mainApp').style.display='none';
+        document.getElementById('loadingScreen').style.display='none';
+        document.getElementById('blockScreen').style.display='flex';
+        document.getElementById('vpnNoticeText').innerText = msg;
     }
 
     securityAudit().then(ok => {
@@ -158,15 +184,21 @@
             document.getElementById('loadingScreen').style.display='none';
             document.getElementById('mainApp').style.display='flex';
             init();
-            setInterval(securityAudit, 5000);
+            setInterval(securityAudit, 5000); // Strict 5s check
         }
     });
 
     async function init() {
-        db.collection("settings").doc("general").onSnapshot(doc => { if(doc.exists) document.getElementById('appNameHeader').innerText = doc.data().appName; });
+        db.collection("settings").doc("general").onSnapshot(doc => { 
+            if(doc.exists) {
+                document.getElementById('appNameHeader').innerText = doc.data().appName; 
+                document.getElementById('pageTitle').innerText = doc.data().appName; 
+            } 
+        });
+        
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
         let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
-        if(!isOwner) { alert("Security: One device per account!"); location.reload(); return; }
+        if(!isOwner) { triggerKick("Multiple IDs not allowed on one device!"); return; }
 
         db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data(); sync(); });
         db.collection("settings").doc("referral").onSnapshot(doc => { 
@@ -175,6 +207,8 @@
             document.getElementById('refAmt').innerText = refSet.bonus || 0;
         });
         db.collection("settings").doc("withdraw").onSnapshot(doc => { if(doc.exists) { wSet = doc.data(); document.getElementById('minWText').innerText = wSet.min || 0; } });
+        db.collection("settings").doc("support").onSnapshot(doc => { if(doc.exists) document.getElementById('supBtn').onclick = () => window.open(doc.data().link); });
+        
         db.collection("pay_methods").onSnapshot(snap => {
             let h = '<option value="">Select Method</option>';
             snap.forEach(doc => { h += `<option value="${doc.data().name}">${doc.data().name}</option>`; });
@@ -247,7 +281,7 @@
                 window['show_'+zone]().then(() => {
                     if ((Date.now() - startTime) / 1000 >= 15) {
                         updateDB(t, c); alert("Reward Added! ✅");
-                    } else { alert("Ad closed early! No reward. ❌"); }
+                    } else { alert("Closed early! No reward. ❌"); }
                     isWaiting = false; countBox.style.display = 'none';
                 }).catch(() => { isWaiting = false; countBox.style.display = 'none'; });
             }
@@ -298,6 +332,7 @@
     function openPage(id) { document.getElementById(id).style.display = 'flex'; }
     function closePage(id) { document.getElementById(id).style.display = 'none'; }
     function copyRef() { const refLink = document.getElementById('refLink'); refLink.select(); document.execCommand('copy'); alert("Link Copied!"); }
+
 </script>
 </body>
 </html>
