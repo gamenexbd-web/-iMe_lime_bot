@@ -23,48 +23,45 @@
         .menu-item i { font-size: 32px; color: #FF005C; margin-bottom: 12px; display: block; }
         .menu-item span { font-size: 14px; font-weight: 800; color: #333; }
 
+        /* Block UI */
         .block-screen { position: fixed; inset: 0; background: #0f172a; color: white; z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; }
-        .tg-only-bg { background: linear-gradient(180deg, #0088cc 0%, #005580 100%) !important; }
-        .tg-logo { width: 100px; height: 100px; background: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #0088cc; margin-bottom: 25px; box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
-        .kick-icon { font-size: 60px; color: #ef4444; margin-bottom: 20px; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .tg-logo { width: 100px; height: 100px; background: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #0088cc; margin-bottom: 25px; }
+        .kick-card { background: #1e293b; padding: 40px 20px; border-radius: 30px; border: 1px solid #334155; width: 100%; max-width: 340px; }
 
         .page-overlay { position: absolute; inset: 0; background: #FFECF2; z-index: 100; padding: 25px; display: none; flex-direction: column; overflow-y: auto; }
         .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .back-btn { font-size: 18px; font-weight: 800; color: #333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        .ov-balance-badge { background: white; color: #FF005C; padding: 6px 15px; border-radius: 50px; font-weight: 800; font-size: 13px; border: 1.5px solid #FF005C; }
-        
         #loadingScreen { position: fixed; inset: 0; background: #FFECF2; z-index: 8888; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; color: #FF005C; }
         .loader { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #FF005C; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        input, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; font-weight: 600; }
         .task-option { background: white; padding: 22px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 15px; }
         .play-tag { font-weight: 800; color: white; background: #FF005C; padding: 6px 18px; border-radius: 50px; font-size: 12px; }
         .top-user-card { background: white; padding: 10px 15px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; border: 1px solid #fff; }
         .user-thumb { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #FF005C; object-fit: cover; }
-        .history-card { background: white; padding: 18px; border-radius: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid #FF005C; }
         #clickModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 10000; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modern-modal { background: white; width: 100%; max-width: 340px; border-radius: 40px; padding: 35px 25px; text-align: center; }
+        input, select { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
 <div id="loadingScreen"><div class="loader"></div>🛡️ Security Heartbeat...</div>
 
-<div id="tgOnlyScreen" class="block-screen tg-only-bg">
+<!-- Telegram Only Guard -->
+<div id="tgOnlyScreen" class="block-screen" style="background: linear-gradient(180deg, #0088cc 0%, #005580 100%);">
     <div class="tg-logo"><i class="fa-brands fa-telegram"></i></div>
-    <h1 style="font-size:24px; font-weight:800; margin-bottom:10px;">TELEGRAM ONLY!</h1>
-    <p style="color:#e0f2fe; font-size:14px; line-height:1.6;">Access Denied. This app is only for Telegram users.</p>
-    <a href="https://t.me/" style="margin-top:30px; background:white; color:#0088cc; padding:15px 40px; border-radius:20px; text-decoration:none; font-weight:800;">Join Telegram</a>
+    <h1 style="font-weight:800;">TELEGRAM ONLY</h1>
+    <p>Access via Telegram Bot only.</p>
 </div>
 
+<!-- VPN Kick Screen -->
 <div id="blockScreen" class="block-screen">
-    <div style="background: #1e293b; padding: 40px 20px; border-radius: 30px; border: 1px solid #334155; width:100%; max-width:340px;">
-        <div class="kick-icon"><i class="fa-solid fa-shield-virus"></i></div>
-        <h2 style="color:#ef4444; font-weight:800; margin-bottom:15px;">KICKED BY GUARD</h2>
-        <p id="vpnNoticeText" style="color:#94a3b8; font-size:14px; line-height:1.6;"></p>
-        <button onclick="location.reload()" style="margin-top:25px; background:#ef4444; border:none; color:white; padding:12px 30px; border-radius:12px; font-weight:700;">Reconnect</button>
+    <div class="kick-card">
+        <i class="fa-solid fa-shield-virus" style="font-size:60px; color:#ef4444; margin-bottom:20px;"></i>
+        <h2 style="color:#ef4444; font-weight:800;">GUARD: ACCESS DENIED</h2>
+        <p id="vpnNoticeText" style="color:#94a3b8; margin-top:15px;"></p>
+        <button onclick="location.reload()" style="margin-top:25px; background:#ef4444; color:white; border:none; padding:12px 30px; border-radius:12px; font-weight:700;">Reconnect</button>
     </div>
 </div>
 
@@ -90,7 +87,7 @@
     <div id="withdrawPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('withdrawPage')"><i class="fa-solid fa-arrow-left"></i> Withdrawal</div><div class="ov-balance-badge">৳ <span class="global-balance">0.00</span></div></div><div style="background:white; padding:25px; border-radius:30px;"><p style="text-align:center; font-weight:800; color:#FF005C; margin-bottom:20px;">Minimum: ৳<span id="minWText">0</span></p><select id="methodSelect"><option value="">Loading...</option></select><input type="text" id="payAcc" placeholder="Account Number"><input type="number" id="payAmt" placeholder="Amount (৳)"><button onclick="submitWithdraw()" style="background: #FF005C; color:white; border:none; padding:15px; width:100%; border-radius:15px; font-weight:800;">Submit Request</button><button style="background: #6366f1; color:white; border:none; padding:15px; width:100%; border-radius:15px; font-weight:800; margin-top:10px;" onclick="openPage('historyPage')">View History</button></div></div>
     <div id="historyPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('historyPage')"><i class="fa-solid fa-arrow-left"></i> History</div></div><div id="historyList"></div></div>
     <div id="topPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('topPage')"><i class="fa-solid fa-arrow-left"></i> Leaderboard</div></div><div id="topList"></div></div>
-    <div id="profilePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> Stats</div></div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white;"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between;">Task 1: <span id="st1" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Task 2: <span id="st2" style="color:#FF005C">0/0</span></p><p style="font-size:14px; font-weight:600; display:flex; justify-content:space-between; margin-top:10px;">Refers: <span id="sRef" style="color:#FF005C">0</span></p></div></div>
+    <div id="profilePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('profilePage')"><i class="fa-solid fa-arrow-left"></i> Stats</div></div><div style="text-align:center;"><img src="" id="pPic" style="width:100px; height:100px; border-radius:30px; border:4px solid white;"><h2 id="pName" style="font-weight:800; margin-top:10px;">User</h2><p id="pId" style="color:grey; font-size:13px;">ID: 000</p></div><div style="background:white; padding:20px; border-radius:20px; margin-top:20px;"><p>Task 1: <span id="st1" style="color:#FF005C; float:right;">0/0</span></p><p style="margin-top:10px;">Task 2: <span id="st2" style="color:#FF005C; float:right;">0/0</span></p><p style="margin-top:10px;">Refers: <span id="sRef" style="color:#FF005C; float:right;">0</span></p></div></div>
     <div id="invitePage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('invitePage')"><i class="fa-solid fa-arrow-left"></i> Invite</div></div><div style="background:white; padding:30px; border-radius:30px; text-align:center;"><h3 style="font-weight:800; color:#333;">Refer & Earn ৳<span id="refAmt">0</span></h3><input type="text" id="refLink" readonly style="width:100%; background:#f0f0f0; border:1px dashed #FF005C; padding:12px; border-radius:12px; margin-top:20px; font-size:11px; text-align:center;"><button onclick="copyRef()" style="background: #FF005C; color:white; border:none; padding:15px; width:100%; border-radius:15px; font-weight:800; margin-top:15px;">Copy Link</button></div></div>
     <div id="taskPage" class="page-overlay"><div class="overlay-header"><div class="back-btn" onclick="closePage('taskPage')"><i class="fa-solid fa-arrow-left"></i> Start Task</div></div><div class="task-option" onclick="handleAdClick('1')"><span style="font-weight:800">Task One</span><span class="play-tag">Play</span></div><div class="task-option" onclick="handleAdClick('2')"><span style="font-weight:800">Task Two</span><span class="play-tag">Play</span></div><div id="countdownBox" style="font-size: 14px; color: #FF005C; font-weight: 800; text-align: center; margin-top: 15px; padding: 15px; background: white; border-radius: 15px; border: 2px solid #FF005C; display: none;"></div></div>
 </div>
@@ -118,7 +115,6 @@
     const db = firebase.firestore();
     const tg = window.Telegram.WebApp;
 
-    // --- 1. Telegram Only Guard ---
     if (!tg.initData || !tg.initDataUnsafe.user) {
         document.getElementById('loadingScreen').style.display='none';
         document.getElementById('tgOnlyScreen').style.display='flex';
@@ -130,8 +126,8 @@
     let cbDeviceId = localStorage.getItem('cb_hw_token') || 'cb-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
     localStorage.setItem('cb_hw_token', cbDeviceId);
     
-    let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {};
-    let initialIP = ""; // To track IP change
+    let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {}, vpnSet = {};
+    let currentIP = "";
 
     const fakeUsers = [
         {name: "Mohammad Rakib", balance: 145.20, referCount: 52, photo: "https://randomuser.me/api/portraits/men/32.jpg"},
@@ -139,66 +135,54 @@
         {name: "Sumon Ahmed", balance: 110.50, referCount: 32, photo: "https://randomuser.me/api/portraits/men/46.jpg"}
     ];
 
-    // --- 2. Fix: Powerful 5-Second Security Heartbeat ---
-    async function securityAudit() {
+    // --- 1-Second Security Guard Logic ---
+    async function runGuard() {
         try {
             const vSnap = await db.collection("settings").doc("vpn").get();
-            const vData = vSnap.exists ? vSnap.data() : { status: "OFF" };
+            vpnSet = vSnap.exists ? vSnap.data() : { status: "OFF" };
             
-            if (vData.status === "ON") {
-                const res = await fetch('https://ipwho.is/');
+            if (vpnSet.status === "ON") {
+                const res = await fetch('https://ipapi.co/json/');
                 const data = await res.json();
                 
-                if (!data || !data.success) return true; // API issue, bypass to avoid false kick
+                if (currentIP === "") currentIP = data.ip;
 
                 const loc = data.country_code.toUpperCase();
-                const currentIP = data.ip;
-                const isProxy = data.security.proxy || data.security.vpn || data.security.tor;
-                const allowed = vData.allowed.split(',').map(c => c.trim().toUpperCase());
+                const allowed = vpnSet.allowed.split(',').map(c => c.trim().toUpperCase());
 
-                // First time IP storage
-                if (initialIP === "") initialIP = currentIP;
-
-                // Kick Logic: Country mismatch OR IP changed (VPN disconnected)
-                if (!allowed.includes(loc) || (initialIP !== currentIP)) {
-                    triggerKick(vData.notice || "VPN Disconnected or Unauthorized Location!");
+                // If IP changed or country is not allowed -> Kick instantly
+                if (!allowed.includes(loc) || currentIP !== data.ip) {
+                    kickUser(vpnSet.notice || "VPN Protection Violation!");
                     return false;
                 }
             }
             return true;
-        } catch (e) {
-            console.error("Security Audit Failed:", e);
-            return true; // Don't kick if API is down
-        }
+        } catch (e) { return true; }
     }
 
-    function triggerKick(msg) {
+    function kickUser(msg) {
         document.getElementById('mainApp').style.display='none';
         document.getElementById('loadingScreen').style.display='none';
         document.getElementById('blockScreen').style.display='flex';
         document.getElementById('vpnNoticeText').innerText = msg;
     }
 
-    securityAudit().then(ok => {
+    runGuard().then(ok => {
         if (ok) {
             document.getElementById('loadingScreen').style.display='none';
             document.getElementById('mainApp').style.display='flex';
             init();
-            setInterval(securityAudit, 5000); // Strict 5s check
+            setInterval(runGuard, 1000); // 1-Second Heartbeat
         }
     });
 
     async function init() {
-        db.collection("settings").doc("general").onSnapshot(doc => { 
-            if(doc.exists) {
-                document.getElementById('appNameHeader').innerText = doc.data().appName; 
-                document.getElementById('pageTitle').innerText = doc.data().appName; 
-            } 
-        });
+        db.collection("settings").doc("general").onSnapshot(doc => { if(doc.exists) { document.getElementById('appNameHeader').innerText = doc.data().appName; document.getElementById('pageTitle').innerText = doc.data().appName; } });
         
+        // One Device Policy
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
         let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
-        if(!isOwner) { triggerKick("Multiple IDs not allowed on one device!"); return; }
+        if(!isOwner) { kickUser("One account per device policy!"); return; }
 
         db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data(); sync(); });
         db.collection("settings").doc("referral").onSnapshot(doc => { 
@@ -208,7 +192,7 @@
         });
         db.collection("settings").doc("withdraw").onSnapshot(doc => { if(doc.exists) { wSet = doc.data(); document.getElementById('minWText').innerText = wSet.min || 0; } });
         db.collection("settings").doc("support").onSnapshot(doc => { if(doc.exists) document.getElementById('supBtn').onclick = () => window.open(doc.data().link); });
-        
+
         db.collection("pay_methods").onSnapshot(snap => {
             let h = '<option value="">Select Method</option>';
             snap.forEach(doc => { h += `<option value="${doc.data().name}">${doc.data().name}</option>`; });
@@ -260,6 +244,7 @@
         const clickLimit = t === '1' ? (settings.clickAfter1 || 3) : (settings.clickAfter2 || 3);
         const count = t === '1' ? (userData.adCount1||0) : (userData.adCount2||0);
         const limit = t === '1' ? settings.limit1 : settings.limit2;
+
         if(count >= limit) return alert("Daily limit reached!");
 
         if(progress >= clickLimit) { 
@@ -278,7 +263,9 @@
                 isWaiting = true;
                 const countBox = document.getElementById('countdownBox');
                 countBox.style.display = 'block'; countBox.innerText = `⏳ Watch Ad (15s)...`;
+                
                 window['show_'+zone]().then(() => {
+                    // 15-Second Validation Logic
                     if ((Date.now() - startTime) / 1000 >= 15) {
                         updateDB(t, c); alert("Reward Added! ✅");
                     } else { alert("Closed early! No reward. ❌"); }
