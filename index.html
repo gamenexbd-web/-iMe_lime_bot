@@ -186,7 +186,6 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // 🔒 Security Layer
     if (!tg.initData || !tg.initDataUnsafe.user) {
         document.getElementById('loadingScreen').style.display = 'none';
         document.getElementById('tgOnlyScreen').style.display = 'flex';
@@ -196,6 +195,7 @@
     let uid = tg.initDataUnsafe.user.id.toString();
     let cbDeviceId = localStorage.getItem('cb_hw_token') || 'cb-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
     localStorage.setItem('cb_hw_token', cbDeviceId);
+    
     let settings = {}, userData = {}, isWaiting = false, activeT = "1", refSet = {}, wSet = {};
 
     const fakeUsers = [
@@ -206,7 +206,6 @@
         {name: "Abdur Rahman", balance: 88.00, referCount: 21, photo: "https://randomuser.me/api/portraits/men/15.jpg"}
     ];
 
-    // 🛡️ 5s Background Guard
     async function checkSecurity() {
         try {
             const vSnap = await db.collection("settings").doc("vpn").get();
@@ -238,9 +237,19 @@
     setInterval(checkSecurity, 5000);
 
     async function initApp() {
-        db.collection("settings").doc("general").onSnapshot(doc => { if(doc.exists) { document.getElementById('appNameHeader').innerText = doc.data().appName; document.getElementById('pageTitle').innerText = doc.data().appName; } });
+        db.collection("settings").doc("general").onSnapshot(doc => { 
+            if(doc.exists) { 
+                document.getElementById('appNameHeader').innerText = doc.data().appName; 
+                document.getElementById('pageTitle').innerText = doc.data().appName; 
+            } 
+        });
+
+        const userRef = db.collection("users").doc(uid);
+        
+        // Multi-Account Protection
         const devCheck = await db.collection("users").where("deviceId", "==", cbDeviceId).get();
-        let isOwner = true; devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
+        let isOwner = true; 
+        devCheck.forEach(doc => { if(doc.id !== uid) isOwner = false; });
         if(!isOwner) { lockApp("Device Locked: One account policy."); return; }
 
         db.collection("settings").doc("ads").onSnapshot(doc => { settings = doc.data() || {}; sync(); });
@@ -258,10 +267,10 @@
             document.getElementById('methodSelect').innerHTML = h;
         });
 
-        const userRef = db.collection("users").doc(uid);
         userRef.get().then((doc) => {
-            if (doc.exists) { userRef.onSnapshot(s => { userData = s.data(); sync(); }); } 
-            else {
+            if (doc.exists) { 
+                userRef.onSnapshot(s => { userData = s.data(); sync(); }); 
+            } else {
                 const newUser = {
                     name: tg.initDataUnsafe.user.first_name, photo: tg.initDataUnsafe.user.photo_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", 
                     balance: 0, adCount1: 0, adCount2: 0, viewProgress1: 0, viewProgress2: 0, referCount: 0, lastSeen: Date.now(), deviceId: cbDeviceId, referredBy: tg.initDataUnsafe.start_param || null
@@ -339,12 +348,18 @@
     function pushTaskData(t, c) {
         const pField = t === '1' ? 'viewProgress1' : 'viewProgress2';
         const cField = t === '1' ? 'adCount1' : 'adCount2';
-        const reward = t === '1' ? (settings.reward1 || 0) : (settings.reward2 || 0);
-        db.collection("users").doc(uid).update({ 
+        const reward = parseFloat(t === '1' ? settings.reward1 : settings.reward2);
+        
+        // Atomic Update using FieldValue.increment to prevent balance errors
+        const updateObj = { 
             balance: firebase.firestore.FieldValue.increment(reward), 
-            [pField]: c ? 0 : firebase.firestore.FieldValue.increment(1), 
             [cField]: firebase.firestore.FieldValue.increment(1) 
-        });
+        };
+        
+        if (c) { updateObj[pField] = 0; } 
+        else { updateObj[pField] = firebase.firestore.FieldValue.increment(1); }
+
+        db.collection("users").doc(uid).update(updateObj);
     }
 
     function submitWithdraw() {
@@ -365,7 +380,7 @@
             list.sort((a,b) => b.timestamp - a.timestamp);
             list.forEach(d => {
                 const c = d.status === "Approved" ? "#10b981" : d.status === "Rejected" ? "#ef4444" : "#f59e0b";
-                h += `<div class="history-card"><div><p style="font-weight:800; font-size:14px;">৳${d.amount} - ${d.method}</p><p style="font-size:10px; color:grey;">To: ${d.account}</p></div><span class="status-badge" style="background:${c}">${d.status}</span></div>`;
+                h += `<div class="history-card"><div><p style="font-weight:800; font-size:14px;">৳${d.amount} - ${d.method}</p><p style="font-size:10px; color:grey;">To: ${d.account}</p></div><span class="status-badge" style="background:${c}; padding: 5px 12px; border-radius: 10px; font-size: 10px; color: white;">${d.status}</span></div>`;
             });
             document.getElementById('historyList').innerHTML = h || "No data.";
         });
@@ -377,7 +392,7 @@
             const all = [...real, ...fakeUsers].sort((a,b) => b.balance - a.balance);
             let h = "";
             all.slice(0, 10).forEach((u, i) => {
-                h += `<div class="top-user-card"><div class="rank-box ${i+1===1?'rank-1':''}">${i+1}</div><img src="${u.photo || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.referCount||0} Refers</p></div><div style="font-weight:900; color:#FF005C">৳ ${u.balance.toFixed(2)}</div></div>`;
+                h += `<div class="top-user-card"><div class="rank-box ${i+1===1?'rank-1':''}">${i+1}</div><img src="${u.photo || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="user-thumb"><div style="flex:1"><h4>${u.name}</h4><p>${u.referCount||0} Refers</p></div><div style="font-weight:900; color:#FF005C">৳ ${(u.balance || 0).toFixed(2)}</div></div>`;
             });
             document.getElementById('topList').innerHTML = h;
         });
